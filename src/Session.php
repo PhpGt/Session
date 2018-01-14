@@ -2,7 +2,7 @@
 namespace Gt\Session;
 
 class Session {
-	public function __construct() {
+	public function __construct(array $session) {
 
 	}
 }
