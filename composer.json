@@ -1,10 +1,23 @@
 {
 	"name": "phpgt/session",
+	"description": "Encapsulated user sessions.",
 	"license": "MIT",
+
+	"require": {
+		"php": "^7.1"
+	},
+	"require-dev": {
+		"phpunit": "^6.4"
+	},
 
 	"autoload": {
 		"psr-4": {
 			"Gt\\Session\\": "./src"
+		}
+	},
+	"autoload-dev": {
+		"psr-4": {
+			"Gt\\Session\\Test": "/test/unit"
 		}
 	}
 }
