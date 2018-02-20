@@ -2,7 +2,6 @@
 namespace Gt\Session;
 
 use SessionHandlerInterface;
-use SessionUpdateTimestampHandlerInterface;
 
 abstract class Handler implements SessionHandlerInterface {
 
