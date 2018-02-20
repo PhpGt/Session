@@ -17,8 +17,6 @@ class Session implements ArrayAccess {
 	/** @var SessionHandlerInterface */
 	protected $sessionHandler;
 
-	// TODO: Default session path passed in from default config...........................
-
 	public function __construct(
 		SessionHandlerInterface $sessionHandler,
 		string $id = null,
@@ -138,7 +136,7 @@ class Session implements ArrayAccess {
 	}
 
 	protected function writeSessionData() {
-		$success = $this->sessionHandler->write(
+		$this->sessionHandler->write(
 			$this->id,
 			serialize($this->data)
 		);
