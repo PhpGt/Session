@@ -49,7 +49,7 @@ class Session implements ArrayAccess {
 		$this->data = $this->readSessionData();
 	}
 
-	public function get(string $key):?string {
+	public function get(string $key) {
 		return $this->data[$key] ?? null;
 	}
 
