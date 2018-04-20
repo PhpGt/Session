@@ -38,7 +38,7 @@ class Session implements ArrayAccess {
 			"save_path" => $sessionPath,
 			"name" => $sessionName,
 			"cookie_lifetime" => $config["lifetime"] ?? self::DEFAULT_SESSION_LIFETIME,
-			"cookie_path" => $config["path"] ?? self::DEFAULT_SESSION_PATH,
+			"cookie_path" => "/",
 			"cookie_domain" => $config["domain"] ?? self::DEFAULT_SESSION_DOMAIN,
 			"cookie_secure" => $config["secure"] ?? self::DEFAULT_SESSION_SECURE,
 			"cookie_httponly" => $config["httponly"] ?? self::DEFAULT_SESSION_HTTPONLY,
