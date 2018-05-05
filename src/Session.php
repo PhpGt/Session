@@ -49,10 +49,6 @@ class Session implements ArrayAccess {
 		$this->data = $this->readSessionData();
 	}
 
-	public function getId():string {
-		return $this->id;
-	}
-
 	public function get(string $key) {
 		return $this->data[$key] ?? null;
 	}
@@ -105,7 +101,7 @@ class Session implements ArrayAccess {
 		$this->delete($offset);
 	}
 
-	protected function getId():string {
+	public function getId():string {
 		$id = session_id();
 		if(empty($id)) {
 			session_id($this->createNewId());
