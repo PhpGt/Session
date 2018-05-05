@@ -49,6 +49,10 @@ class Session implements ArrayAccess {
 		$this->data = $this->readSessionData();
 	}
 
+	public function getId():string {
+		return $this->id;
+	}
+
 	public function get(string $key) {
 		return $this->data[$key] ?? null;
 	}
