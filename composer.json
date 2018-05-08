@@ -7,7 +7,7 @@
 		"php": "^7.1"
 	},
 	"require-dev": {
-		"phpunit": "^6.4"
+		"phpunit/phpunit": "^6.4"
 	},
 
 	"autoload": {
@@ -17,7 +17,7 @@
 	},
 	"autoload-dev": {
 		"psr-4": {
-			"Gt\\Session\\Test": "/test/unit"
+			"Gt\\Session\\Test\\": "/test/unit"
 		}
 	}
 }
