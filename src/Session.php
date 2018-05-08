@@ -66,6 +66,8 @@ class Session implements ArrayAccess {
 		if($this->has($key)) {
 			unset($this->data[$key]);
 		}
+
+		$this->writeSessionData();
 	}
 
 	/**
