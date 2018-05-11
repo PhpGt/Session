@@ -6,6 +6,8 @@ use Gt\Session\Session;
 use PHPUnit\Framework\TestCase;
 
 class SessionTest extends TestCase {
+	public static $sessionStartCalls = [];
+
 	/**
 	 * @dataProvider data_randomString
 	 */
@@ -14,6 +16,15 @@ class SessionTest extends TestCase {
 			->getMock();
 		$session = new Session($handler);
 		self::assertNull($session->get($randomString));
+	}
+
+	public function testSessionStarts():void {
+		$handler = $this->getMockBuilder(Handler::class)
+			->getMock();
+
+		self::assertEmpty(self::$sessionStartCalls);
+		$session = new Session($handler);
+		self::assertCount(1, self::$sessionStartCalls);
 	}
 
 	public function data_randomString():array {
@@ -30,7 +41,6 @@ class SessionTest extends TestCase {
 }
 
 namespace Gt\Session;
-$sessionStartCalls = [];
 function session_start() {
-	$sessionStartCalls []= func_get_args();
+	\Gt\Session\Test\SessionTest::$sessionStartCalls []= func_get_args();
 }
