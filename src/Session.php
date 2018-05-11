@@ -20,7 +20,7 @@ class Session implements ArrayAccess {
 	public function __construct(
 		SessionHandlerInterface $sessionHandler,
 		string $id = null,
-		iterable $config
+		iterable $config = []
 	) {
 		$this->sessionHandler = $sessionHandler;
 
@@ -43,7 +43,6 @@ class Session implements ArrayAccess {
 			"cookie_secure" => $config["secure"] ?? self::DEFAULT_SESSION_SECURE,
 			"cookie_httponly" => $config["httponly"] ?? self::DEFAULT_SESSION_HTTPONLY,
 		]);
-
 
 		$this->sessionHandler->open($sessionPath, $sessionName);
 		$this->data = $this->readSessionData();
