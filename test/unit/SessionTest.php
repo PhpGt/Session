@@ -70,6 +70,23 @@ class SessionTest extends TestCase {
 	/**
 	 * @@dataProvider data_randomKeyValuePairs
 	 */
+	public function testSetOffsetGet(array $keyValuePairs):void {
+		$handler = $this->getMockBuilder(Handler::class)
+			->getMock();
+		$session = new Session($handler);
+
+		foreach($keyValuePairs as $key => $value) {
+			$session->set($key, $value);
+		}
+
+		foreach($keyValuePairs as $key => $value) {
+			self::assertEquals($value, $session[$key]);
+		}
+	}
+
+	/**
+	 * @@dataProvider data_randomKeyValuePairs
+	 */
 	public function testSetGetNotExistsOtherKey(array $keyValuePairs):void {
 		$handler = $this->getMockBuilder(Handler::class)
 			->getMock();
