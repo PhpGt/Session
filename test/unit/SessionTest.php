@@ -67,6 +67,36 @@ class SessionTest extends TestCase {
 		}
 	}
 
+	/**
+	 * @@dataProvider data_randomKeyValuePairs
+	 */
+	public function testSetGetNotExistsOtherKey(array $keyValuePairs):void {
+		$handler = $this->getMockBuilder(Handler::class)
+			->getMock();
+		$session = new Session($handler);
+
+		foreach($keyValuePairs as $key => $value) {
+			$session->set($key, $value);
+		}
+
+// Test that other keys' values do not match.
+		foreach($keyValuePairs as $key => $value) {
+			do {
+				$otherKey = array_rand($keyValuePairs);
+			}while($otherKey === $key);
+
+			self::assertNotEquals($value, $session->get($otherKey));
+		}
+
+// Test that unknown keys' values do not match.
+		foreach($keyValuePairs as $key => $value) {
+			self::assertNotEquals(
+				$value,
+				$session->get("$key-oh-no")
+			);
+		}
+	}
+
 	public function data_randomString():array {
 		$data = [];
 
@@ -107,7 +137,7 @@ class SessionTest extends TestCase {
 		for($i = 0; $i < 10; $i++) {
 			$row = [];
 
-			$numberKeys = rand(1, 10);
+			$numberKeys = rand(2, 10);
 			$config = [];
 			for($j = 0; $j < $numberKeys; $j++) {
 				$key = uniqid("key");
