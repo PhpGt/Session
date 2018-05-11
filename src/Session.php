@@ -11,6 +11,7 @@ class Session implements ArrayAccess {
 	const DEFAULT_SESSION_DOMAIN = "";
 	const DEFAULT_SESSION_SECURE = false;
 	const DEFAULT_SESSION_HTTPONLY = true;
+	const DEFAULT_COOKIE_PATH = "/";
 
 	protected $data;
 	protected $id;
@@ -19,8 +20,8 @@ class Session implements ArrayAccess {
 
 	public function __construct(
 		SessionHandlerInterface $sessionHandler,
-		string $id = null,
-		iterable $config = []
+		iterable $config = [],
+		string $id = null
 	) {
 		$this->sessionHandler = $sessionHandler;
 
@@ -31,17 +32,17 @@ class Session implements ArrayAccess {
 		$this->id = $id;
 
 		$sessionPath = $this->getAbsolutePath(
-			$config["path"] ?? self::DEFAULT_SESSION_PATH
+			$config["save_path"] ?? self::DEFAULT_SESSION_PATH
 		);
 		$sessionName = $config["name"] ?? self::DEFAULT_SESSION_NAME;
 		session_start([
 			"save_path" => $sessionPath,
 			"name" => $sessionName,
-			"cookie_lifetime" => $config["lifetime"] ?? self::DEFAULT_SESSION_LIFETIME,
-			"cookie_path" => "/",
-			"cookie_domain" => $config["domain"] ?? self::DEFAULT_SESSION_DOMAIN,
-			"cookie_secure" => $config["secure"] ?? self::DEFAULT_SESSION_SECURE,
-			"cookie_httponly" => $config["httponly"] ?? self::DEFAULT_SESSION_HTTPONLY,
+			"cookie_lifetime" => $config["cookie_lifetime"] ?? self::DEFAULT_SESSION_LIFETIME,
+			"cookie_path" => $config["cookie_path"] ?? self::DEFAULT_COOKIE_PATH,
+			"cookie_domain" => $config["cookie_domain"] ?? self::DEFAULT_SESSION_DOMAIN,
+			"cookie_secure" => $config["cookie_secure"] ?? self::DEFAULT_SESSION_SECURE,
+			"cookie_httponly" => $config["cookie_httponly"] ?? self::DEFAULT_SESSION_HTTPONLY,
 		]);
 
 		$this->sessionHandler->open($sessionPath, $sessionName);
