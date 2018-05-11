@@ -114,6 +114,23 @@ class SessionTest extends TestCase {
 		}
 	}
 
+	/**
+	 * @dataProvider data_randomKeyValuePairs
+	 */
+	public function testHasNot(array $keyValuePairs):void {
+		$handler = $this->getMockBuilder(Handler::class)
+			->getMock();
+		$session = new Session($handler);
+
+		foreach($keyValuePairs as $key => $value) {
+			$session->set($key, $value);
+		}
+
+		foreach($keyValuePairs as $key => $value) {
+			self::assertFalse($session->has("$key-oh-no"));
+		}
+	}
+
 	public function data_randomString():array {
 		$data = [];
 
