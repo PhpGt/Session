@@ -154,6 +154,17 @@ class SessionTest extends TestCase {
 		}
 	}
 
+	public function testWriteSessionDataCalled() {
+		$handler = $this->getMockBuilder(Handler::class)
+			->getMock();
+		$handler->expects($this->exactly(2))
+			->method("write");
+		$session = new Session($handler);
+
+		$session->set("test-key", "test-value");
+		$session->delete("test-key");
+	}
+
 	public function data_randomString():array {
 		$data = [];
 
