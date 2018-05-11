@@ -70,13 +70,13 @@ class SessionTest extends TestCase {
 	/**
 	 * @@dataProvider data_randomKeyValuePairs
 	 */
-	public function testSetOffsetGet(array $keyValuePairs):void {
+	public function testOffsetSetOffsetGet(array $keyValuePairs):void {
 		$handler = $this->getMockBuilder(Handler::class)
 			->getMock();
 		$session = new Session($handler);
 
 		foreach($keyValuePairs as $key => $value) {
-			$session->set($key, $value);
+			$session[$key] = $value;
 		}
 
 		foreach($keyValuePairs as $key => $value) {
