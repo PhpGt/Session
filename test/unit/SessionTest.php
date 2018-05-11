@@ -50,6 +50,23 @@ class SessionTest extends TestCase {
 		}
 	}
 
+	/**
+	 * @@dataProvider data_randomKeyValuePairs
+	 */
+	public function testSetGet(array $keyValuePairs):void {
+		$handler = $this->getMockBuilder(Handler::class)
+			->getMock();
+		$session = new Session($handler);
+
+		foreach($keyValuePairs as $key => $value) {
+			$session->set($key, $value);
+		}
+
+		foreach($keyValuePairs as $key => $value) {
+			self::assertEquals($value, $session->get($key));
+		}
+	}
+
 	public function data_randomString():array {
 		$data = [];
 
@@ -78,6 +95,28 @@ class SessionTest extends TestCase {
 			}
 
 			$row []= $configItem;
+			$data []= $row;
+		}
+
+		return $data;
+	}
+
+	public function data_randomKeyValuePairs():array {
+		$data = [];
+
+		for($i = 0; $i < 10; $i++) {
+			$row = [];
+
+			$numberKeys = rand(1, 10);
+			$config = [];
+			for($j = 0; $j < $numberKeys; $j++) {
+				$key = uniqid("key");
+				$value = uniqid("value");
+
+				$config[$key] = $value;
+			}
+
+			$row []= $config;
 			$data []= $row;
 		}
 
