@@ -115,6 +115,36 @@ class SessionTest extends TestCase {
 	}
 
 	/**
+	 * @@dataProvider data_randomKeyValuePairs
+	 */
+	public function testSetGetOffsetNotExistsOtherKey(array $keyValuePairs):void {
+		$handler = $this->getMockBuilder(Handler::class)
+			->getMock();
+		$session = new Session($handler);
+
+		foreach($keyValuePairs as $key => $value) {
+			$session->set($key, $value);
+		}
+
+// Test that other keys' values do not match.
+		foreach($keyValuePairs as $key => $value) {
+			do {
+				$otherKey = array_rand($keyValuePairs);
+			}while($otherKey === $key);
+
+			self::assertNotEquals($value, $session[$otherKey]);
+		}
+
+// Test that unknown keys' values do not match.
+		foreach($keyValuePairs as $key => $value) {
+			self::assertNotEquals(
+				$value,
+				$session["$key-oh-no"]
+			);
+		}
+	}
+
+	/**
 	 * @dataProvider data_randomKeyValuePairs
 	 */
 	public function testHas(array $keyValuePairs):void {
