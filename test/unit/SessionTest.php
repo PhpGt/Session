@@ -235,6 +235,29 @@ class SessionTest extends TestCase {
 		}
 	}
 
+	/**
+	 * @dataProvider data_randomKeyValuePairs
+	 */
+	public function testOffsetUnset(array $keyValuePairs):void {
+		$handler = $this->getMockBuilder(Handler::class)
+			->getMock();
+		$session = new Session($handler);
+
+		foreach($keyValuePairs as $key => $value) {
+			$session->set($key, $value);
+		}
+
+		uasort($keyValuePairs, function () {
+			return rand(-1, 1);
+		});
+
+		foreach($keyValuePairs as $key => $value) {
+			self::assertTrue($session->has($key));
+			unset($session[$key]);
+			self::assertFalse($session->has($key));
+		}
+	}
+
 	public function testWriteSessionDataCalled() {
 		$handler = $this->getMockBuilder(Handler::class)
 			->getMock();
