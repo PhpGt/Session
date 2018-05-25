@@ -9,19 +9,19 @@ Sessions can be addressed using dot notation, allowing for removing whole catego
 ***
 
 <a href="https://circleci.com/gh/PhpGt/Session" target="_blank">
-	<img src="https://img.shields.io/circleci/project/PhpGt/Session/master.svg?style=flat-square" alt="Build status" />
+	<img src="https://badge.status.php.gt/session-build.svg" alt="Build status" />
 </a>
 <a href="https://scrutinizer-ci.com/g/PhpGt/Session" target="_blank">
-	<img src="https://img.shields.io/scrutinizer/g/PhpGt/Session/master.svg?style=flat-square" alt="Code quality" />
+	<img src="https://badge.status.php.gt/session-quality.svg" alt="Code quality" />
 </a>
 <a href="https://scrutinizer-ci.com/g/PhpGt/Session" target="_blank">
-	<img src="https://img.shields.io/scrutinizer/coverage/g/PhpGt/Session/master.svg?style=flat-square" alt="Code coverage" />
+	<img src="https://badge.status.php.gt/session-coverage.svg" alt="Code coverage" />
 </a>
 <a href="https://packagist.org/packages/PhpGt/Session" target="_blank">
-	<img src="https://img.shields.io/packagist/v/PhpGt/Session.svg?style=flat-square" alt="Current version" />
+	<img src="https://badge.status.php.gt/session-version.svg" alt="Current version" />
 </a>
 <a href="http://www.php.gt/session" target="_blank">
-	<img src="https://img.shields.io/badge/docs-www.php.gt/session-26a5e3.svg?style=flat-square" alt="PHP.G/Session documentation" />
+	<img src="https://badge.status.php.gt/session-docs.svg" alt="PHP.Gt/Session documentation" />
 </a>
 
 ## Example usage: Welcome a user by their first name or log out the user
