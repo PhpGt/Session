@@ -70,6 +70,20 @@ class Session implements ArrayAccess {
 		$this->writeSessionData();
 	}
 
+	public function kill():void {
+		$this->sessionHandler->destroy($this->getId());
+		$params = session_get_cookie_params();
+		setcookie(
+			session_name(),
+			"",
+			-1,
+			$params["path"],
+			$params["domain"],
+			$params["secure"],
+			$params["httponly"]
+		);
+	}
+
 	/**
 	 * @link http://php.net/manual/en/arrayaccess.offsetexists.php
 	 * @param string $offset

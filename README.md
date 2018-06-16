@@ -4,8 +4,6 @@ This library is a simple object oriented alternative to the $_SESSION supergloba
 
 Sessions can be addressed using dot notation, allowing for removing whole categories of session data which is particularly useful to log out a user, for example.
 
-
-
 ***
 
 <a href="https://circleci.com/gh/PhpGt/Session" target="_blank">
