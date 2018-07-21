@@ -1,8 +1,8 @@
 # Encapsulated user sessions.
 
-This library is a simple object oriented alternative to the $_SESSION superglobal that can be read using the same associative array style code. 
+This library is a simple object oriented alternative to the $_SESSION superglobal allowing application code to be passed encapsulated `SessionStore` objects, so areas of code can have access to their own Session area without having full read-write access to all session variables.
 
-Sessions can be addressed using dot notation, allowing for removing whole categories of session data which is particularly useful to log out a user, for example.
+Sessions are addressed using dot notation, allowing for handling categories of session data. This is particularly useful when dealing with user authentication, for example.
 
 ***
 
@@ -25,12 +25,12 @@ Sessions can be addressed using dot notation, allowing for removing whole catego
 ## Example usage: Welcome a user by their first name or log out the user
 
 ```php
-if($session->has("user")) {
+if($session->has("auth")) {
 	if($action === "logout") {
-		$session->delete("user");
+		$session->delete("auth");
 	}
 	else {
-		$message = "Welcome back, " . $session->get("user.name.first");
+		$message = "Welcome back, " . $session->get("auth.user.name");
 	}
 }
 else {
