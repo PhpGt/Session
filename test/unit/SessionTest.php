@@ -12,16 +12,6 @@ class SessionTest extends TestCase {
 		self::$sessionStartCalls = [];
 	}
 
-	/**
-	 * @dataProvider data_randomString
-	 */
-	public function testGetReturnsNull(string $randomString):void {
-		$handler = $this->getMockBuilder(Handler::class)
-			->getMock();
-		$session = new Session($handler);
-		self::assertNull($session->get($randomString));
-	}
-
 	public function testSessionStarts():void {
 		$handler = $this->getMockBuilder(Handler::class)
 			->getMock();
@@ -47,40 +37,6 @@ class SessionTest extends TestCase {
 				continue;
 			}
 			self::assertEquals($value, $sessionStartParameter[$key]);
-		}
-	}
-
-	/**
-	 * @@dataProvider data_randomKeyValuePairs
-	 */
-	public function testSetGet(array $keyValuePairs):void {
-		$handler = $this->getMockBuilder(Handler::class)
-			->getMock();
-		$session = new Session($handler);
-
-		foreach($keyValuePairs as $key => $value) {
-			$session->set($key, $value);
-		}
-
-		foreach($keyValuePairs as $key => $value) {
-			self::assertEquals($value, $session->get($key));
-		}
-	}
-
-	/**
-	 * @@dataProvider data_randomKeyValuePairs
-	 */
-	public function testOffsetSetOffsetGet(array $keyValuePairs):void {
-		$handler = $this->getMockBuilder(Handler::class)
-			->getMock();
-		$session = new Session($handler);
-
-		foreach($keyValuePairs as $key => $value) {
-			$session[$key] = $value;
-		}
-
-		foreach($keyValuePairs as $key => $value) {
-			self::assertEquals($value, $session[$key]);
 		}
 	}
 
@@ -157,7 +113,7 @@ class SessionTest extends TestCase {
 		}
 
 		foreach($keyValuePairs as $key => $value) {
-			self::assertTrue($session->has($key));
+			self::assertTrue($session->contains($key));
 		}
 	}
 
@@ -191,7 +147,7 @@ class SessionTest extends TestCase {
 		}
 
 		foreach($keyValuePairs as $key => $value) {
-			self::assertFalse($session->has("$key-oh-no"));
+			self::assertFalse($session->contains("$key-oh-no"));
 		}
 	}
 
@@ -229,9 +185,9 @@ class SessionTest extends TestCase {
 		});
 
 		foreach($keyValuePairs as $key => $value) {
-			self::assertTrue($session->has($key));
-			$session->delete($key);
-			self::assertFalse($session->has($key));
+			self::assertTrue($session->contains($key));
+			$session->remove($key);
+			self::assertFalse($session->contains($key));
 		}
 	}
 
@@ -252,9 +208,9 @@ class SessionTest extends TestCase {
 		});
 
 		foreach($keyValuePairs as $key => $value) {
-			self::assertTrue($session->has($key));
+			self::assertTrue($session->contains($key));
 			unset($session[$key]);
-			self::assertFalse($session->has($key));
+			self::assertFalse($session->contains($key));
 		}
 	}
 
@@ -266,19 +222,7 @@ class SessionTest extends TestCase {
 		$session = new Session($handler);
 
 		$session->set("test-key", "test-value");
-		$session->delete("test-key");
-	}
-
-	public function data_randomString():array {
-		$data = [];
-
-		for($i = 0; $i < 10; $i++) {
-			$row = [];
-			$row []= uniqid("random");
-			$data []= $row;
-		}
-
-		return $data;
+		$session->remove("test-key");
 	}
 
 	public function data_randomConfig():array {
@@ -297,28 +241,6 @@ class SessionTest extends TestCase {
 			}
 
 			$row []= $configItem;
-			$data []= $row;
-		}
-
-		return $data;
-	}
-
-	public function data_randomKeyValuePairs():array {
-		$data = [];
-
-		for($i = 0; $i < 10; $i++) {
-			$row = [];
-
-			$numberKeys = rand(2, 10);
-			$config = [];
-			for($j = 0; $j < $numberKeys; $j++) {
-				$key = uniqid("key");
-				$value = uniqid("value");
-
-				$config[$key] = $value;
-			}
-
-			$row []= $config;
 			$data []= $row;
 		}
 
