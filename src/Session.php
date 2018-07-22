@@ -55,48 +55,6 @@ class Session {
 		$this->stores = $this->readSessionData();
 	}
 
-//	public function get(string $key) {
-//		$store = $this->getStore($key, true);
-//
-//		if(is_null($store)) {
-//			return null;
-//		}
-//
-//		$dotPosition = strrpos($key, ".");
-//		if($dotPosition > 0) {
-//			$key = substr($key, $dotPosition + 1);
-//		}
-//
-//		return $store->get($key);
-//	}
-//
-//	public function set(string $key, $value):void {
-//		$store = $this->getStore($key, true);
-//		$dotPosition = strrpos($key, ".");
-//		if($dotPosition > 0) {
-//			$key = substr($key, $dotPosition + 1);
-//		}
-//
-//		$store->set($key, $value);
-//
-//		$this->write();
-//	}
-//
-//	public function contains(string $key):bool {
-//		$store = $this->getStore($key, true);
-//		$dotPosition = strrpos($key, ".");
-//		if($dotPosition > 0) {
-//			$key = substr($key, $dotPosition + 1);
-//		}
-//
-//		return $store->contains($key);
-//	}
-//
-//	public function remove(string $key = null):void {
-//// TODO: I think this will behave slightly differently, as you can remove a key OR an entire store.
-//		$this->write();
-//	}
-
 	public function kill():void {
 		$this->sessionHandler->destroy($this->getId());
 		$params = session_get_cookie_params();

@@ -73,6 +73,55 @@ trait StoreContainer {
 		$store->write();
 	}
 
+	public function contains(string $key):bool {
+		$store = $this;
+
+		$lastDotPosition = strrpos($key, ".");
+
+		if($this instanceof Session
+		|| $lastDotPosition !== false) {
+			$namespace = $this->getNamespaceFromKey($key)
+				?? Session::DEFAULT_STORE;
+
+			$store = $this->getStore($namespace);
+		}
+
+		if(is_null($store)) {
+			return null;
+		}
+
+		if($lastDotPosition !== false) {
+			$key = substr($key, $lastDotPosition + 1);
+		}
+
+		return $store->containsData($key);
+	}
+
+	public function remove(string $key):void {
+		$store = $this;
+
+		$lastDotPosition = strrpos($key, ".");
+
+		if($this instanceof Session
+		|| $lastDotPosition !== false) {
+			$namespace = $this->getNamespaceFromKey($key)
+				?? Session::DEFAULT_STORE;
+
+			$store = $this->getStore($namespace);
+		}
+
+		if(is_null($store)) {
+			return;
+		}
+
+		if($lastDotPosition !== false) {
+			$key = substr($key, $lastDotPosition + 1);
+		}
+
+		$store->removeDataOrStore($key);
+		$store->write();
+	}
+
 	protected function getSession():Session {
 		if($this instanceof Session) {
 			return $this;

@@ -24,12 +24,37 @@ class SessionStore {
 		return $newStore;
 	}
 
-	public function setData(string $key, $value) {
+	public function setData(string $key, $value):void {
 		$this->data[$key] = $value;
 	}
 
 	public function getData(string $key) {
 		return $this->data[$key] ?? null;
+	}
+
+	public function containsData(string $key):bool {
+		return isset($this->data[$key]);
+	}
+
+	public function containsStore(string $key):bool {
+		return isset($this->stores[$key]);
+	}
+
+	public function removeData(string $key):void {
+		unset($this->data[$key]);
+	}
+
+	public function removeStore(string $key):void {
+		unset($this->stores[$key]);
+	}
+
+	public function removeDataOrStore(string $key):void {
+		if($this->containsData($key)) {
+			$this->removeData($key);
+		}
+		if($this->containsStore($key)) {
+			$this->removeStore($key);
+		}
 	}
 
 	public function write():void {
