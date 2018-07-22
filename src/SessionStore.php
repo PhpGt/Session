@@ -18,12 +18,6 @@ class SessionStore {
 		$this->session = $session;
 	}
 
-	public function createStore(string $name, Session $session):self {
-		$newStore = new self($name, $session);
-		$this->stores[$name] = $newStore;
-		return $newStore;
-	}
-
 	public function setData(string $key, $value):void {
 		$this->data[$key] = $value;
 	}

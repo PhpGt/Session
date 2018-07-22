@@ -5,8 +5,6 @@ use ArrayAccess;
 use SessionHandlerInterface;
 
 class Session {
-	use StoreContainer;
-
 	const DEFAULT_SESSION_NAME = "PHPSESSID";
 	const DEFAULT_SESSION_LIFETIME = 0;
 	const DEFAULT_SESSION_PATH = "/tmp";
@@ -21,8 +19,8 @@ class Session {
 	protected $id;
 	/** @var SessionHandlerInterface */
 	protected $sessionHandler;
-	/** @var SessionStore[] */
-	protected $stores;
+	/** @var SessionStore */
+	protected $store;
 
 	public function __construct(
 		SessionHandlerInterface $sessionHandler,
@@ -52,7 +50,10 @@ class Session {
 		]);
 
 		$this->sessionHandler->open($sessionPath, $sessionName);
-		$this->stores = $this->readSessionData();
+		$this->store = $this->readSessionData() ?: null;
+		if(is_null($this->store)) {
+			$this->store = new SessionStore(__CLASS__, $this);
+		}
 	}
 
 	public function kill():void {
@@ -67,6 +68,26 @@ class Session {
 			$params["secure"],
 			$params["httponly"]
 		);
+	}
+
+	public function getStore(string $namespace) {
+		return $this->store->getStore($namespace);
+	}
+
+	public function get(string $key) {
+		return $this->store->get($key);
+	}
+
+	public function set(string $key, $value):void {
+		$this->store->set($key, $value);
+	}
+
+	public function contains(string $key):bool {
+		return $this->store->contains($key);
+	}
+
+	public function remove(string $key):void {
+		$this->store->remove($key);
 	}
 
 	public function getId():string {
@@ -106,7 +127,7 @@ class Session {
 	public function write() {
 		$this->sessionHandler->write(
 			$this->id,
-			serialize($this->stores)
+			serialize($this->store)
 		);
 	}
 }

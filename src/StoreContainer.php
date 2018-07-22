@@ -20,6 +20,36 @@ trait StoreContainer {
 		return $store->getStore($namespace);
 	}
 
+	public function setStore(string $namespace, SessionStore $newStore = null):void {
+		$session = $this;
+
+		if($this instanceof SessionStore) {
+			$session = $this->session;
+		}
+
+		$namespaceParts = explode(".", $namespace);
+		$store = $this;
+
+		while(!empty($namespaceParts)) {
+			$storeName = array_shift($namespaceParts);
+			$nextStore = $store->getStore($storeName);
+
+			if(is_null($nextStore)) {
+				$nextStore = new SessionStore(
+					$storeName,
+					$session
+				);
+				$store->stores[$storeName] = $nextStore;
+				$store = $nextStore;
+			}
+		}
+	}
+
+	public function createStore(string $namespace):SessionStore {
+		$this->setStore($namespace);
+		return $this->getStore($namespace);
+	}
+
 	public function get(string $key) {
 		$store = $this;
 
@@ -57,11 +87,7 @@ trait StoreContainer {
 			$store = $this->getStore($namespace);
 
 			if(is_null($store)) {
-				$store = SessionStoreFactory::create(
-					$namespace,
-					$this->getSession()
-				);
-				$this->stores[$namespace] = $store;
+				$store = $this->createStore($namespace);
 			}
 		}
 
