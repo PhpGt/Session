@@ -17,7 +17,7 @@
 	},
 	"autoload-dev": {
 		"psr-4": {
-			"Gt\\Session\\Test\\": "/test/unit"
+			"Gt\\Session\\Test\\": "./test/unit"
 		}
 	}
 }

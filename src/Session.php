@@ -4,7 +4,9 @@ namespace Gt\Session;
 use ArrayAccess;
 use SessionHandlerInterface;
 
-class Session implements ArrayAccess {
+class Session {
+	use StoreContainer;
+
 	const DEFAULT_SESSION_NAME = "PHPSESSID";
 	const DEFAULT_SESSION_LIFETIME = 0;
 	const DEFAULT_SESSION_PATH = "/tmp";
@@ -13,10 +15,14 @@ class Session implements ArrayAccess {
 	const DEFAULT_SESSION_HTTPONLY = true;
 	const DEFAULT_COOKIE_PATH = "/";
 
-	protected $data;
+	const DEFAULT_STORE = "_";
+
+	/** @var string */
 	protected $id;
 	/** @var SessionHandlerInterface */
 	protected $sessionHandler;
+	/** @var SessionStore[] */
+	protected $stores;
 
 	public function __construct(
 		SessionHandlerInterface $sessionHandler,
@@ -46,28 +52,7 @@ class Session implements ArrayAccess {
 		]);
 
 		$this->sessionHandler->open($sessionPath, $sessionName);
-		$this->data = $this->readSessionData();
-	}
-
-	public function get(string $key) {
-		return $this->data[$key] ?? null;
-	}
-
-	public function set(string $key, $value):void {
-		$this->data[$key] = $value;
-		$this->writeSessionData();
-	}
-
-	public function has(string $key):bool {
-		return isset($this->data[$key]);
-	}
-
-	public function delete($key):void {
-		if($this->has($key)) {
-			unset($this->data[$key]);
-		}
-
-		$this->writeSessionData();
+		$this->stores = $this->readSessionData();
 	}
 
 	public function kill():void {
@@ -82,39 +67,6 @@ class Session implements ArrayAccess {
 			$params["secure"],
 			$params["httponly"]
 		);
-	}
-
-	/**
-	 * @link http://php.net/manual/en/arrayaccess.offsetexists.php
-	 * @param string $offset
-	 */
-	public function offsetExists($offset):bool {
-		return $this->has($offset);
-	}
-
-	/**
-	 * @link http://php.net/manual/en/arrayaccess.offsetget.php
-	 * @param string $offset <p>
-	 */
-	public function offsetGet($offset) {
-		return $this->get($offset);
-	}
-
-	/**
-	 * @link http://php.net/manual/en/arrayaccess.offsetset.php
-	 * @param string $offset
-	 * @param mixed $value
-	 */
-	public function offsetSet($offset, $value):void {
-		$this->set($offset, $value);
-	}
-
-	/**
-	 * @link http://php.net/manual/en/arrayaccess.offsetunset.php
-	 * @param string $offset
-	 */
-	public function offsetUnset($offset):void {
-		$this->delete($offset);
 	}
 
 	public function getId():string {
@@ -151,10 +103,10 @@ class Session implements ArrayAccess {
 		return unserialize($this->sessionHandler->read($this->id));
 	}
 
-	protected function writeSessionData() {
+	public function write() {
 		$this->sessionHandler->write(
 			$this->id,
-			serialize($this->data)
+			serialize($this->stores)
 		);
 	}
 }
