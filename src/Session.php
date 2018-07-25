@@ -52,7 +52,7 @@ class Session {
 		$this->sessionHandler->open($sessionPath, $sessionName);
 		$this->store = $this->readSessionData() ?: null;
 		if(is_null($this->store)) {
-			$this->store = new SessionStore(__CLASS__, $this);
+			$this->store = new SessionStore(__NAMESPACE__, $this);
 		}
 	}
 
