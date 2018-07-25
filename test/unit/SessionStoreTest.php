@@ -7,7 +7,7 @@ use Gt\Session\Test\Helper\FunctionMocker;
 use Gt\Session\Test\Helper\DataProvider\KeyValuePairProvider;
 use PHPUnit\Framework\TestCase;
 
-class StoreContainerTest extends TestCase {
+class SessionStoreTest extends TestCase {
 	use KeyValuePairProvider;
 
 	public function setUp() {

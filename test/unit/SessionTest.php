@@ -283,12 +283,10 @@ class SessionTest extends TestCase {
 			->getMock();
 		$session = new Session($handler);
 
-		$parentNamespace = implode(
-			".", [
+		$parentNamespace = implode(".", [
 			uniqid("namespace1-"),
 			uniqid("namespace2-"),
-		]
-		);
+		]);
 
 		foreach ($keyValuePairs as $key => $value) {
 			$fullKey = implode(".", [
@@ -310,4 +308,46 @@ class SessionTest extends TestCase {
 
 		self::assertFalse($store->contains($keyToRemove));
 	}
+
+//	/**
+//	 * @dataProvider data_randomKeyValuePairs
+//	 */
+//	public function testRemoveNamespace(array $keyValuePairs) {
+//		$handler = $this->getMockBuilder(Handler::class)
+//			->getMock();
+//		$session = new Session($handler);
+//
+//		$namespace1 = uniqid("namespace1-");
+//		$namespace2 = uniqid("namespace2-");
+//		$namespace2a = uniqid("namespace2a-");
+//
+//		$parentNamespace = implode(".", [
+//			$namespace1,
+//			$namespace2,
+//		]);
+//
+//		foreach($keyValuePairs as $key => $value) {
+//			$fullKey = implode(".", [
+//				$parentNamespace,
+//				$key,
+//			]);
+//
+//			$session->set($fullKey, $value);
+//		}
+//
+//		$parent2Namespace = implode(".", [
+//			$namespace1,
+//			$namespace2a,
+//		]);
+//		$fullKey2 = implode(".", [
+//			$parent2Namespace,
+//			"test-key",
+//		]);
+//		$session->set($fullKey2, "example sibling value");
+//
+//		$session->remove($parentNamespace);
+//
+//		self::assertNull($session->getStore($parentNamespace));
+//		self::assertFalse($session->contains($parentNamespace));
+//	}
 }

@@ -13,8 +13,6 @@ class Session {
 	const DEFAULT_SESSION_HTTPONLY = true;
 	const DEFAULT_COOKIE_PATH = "/";
 
-	const DEFAULT_STORE = "_";
-
 	/** @var string */
 	protected $id;
 	/** @var SessionHandlerInterface */
