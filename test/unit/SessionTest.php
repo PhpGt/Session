@@ -88,6 +88,64 @@ class SessionTest extends TestCase {
 	}
 
 	/**
+	 * @dataProvider data_randomKeyValuePairs
+	 */
+	public function testSetGetNamespaced(array $keyValuePairs):void {
+		$handler = $this->getMockBuilder(Handler::class)
+			->getMock();
+		$session = new Session($handler);
+
+		foreach($keyValuePairs as $key => $value) {
+			$newKey = implode(".", [
+				uniqid("namespace1"),
+				uniqid("namespace2"),
+				$key,
+			]);
+			$keyValuePairs[$newKey] = $value;
+			unset($keyValuePairs[$key]);
+		}
+
+		foreach($keyValuePairs as $key => $value) {
+			$session->set($key, $value);
+		}
+
+		foreach($keyValuePairs as $key => $value) {
+			self::assertEquals($value, $session->get($key));
+		}
+	}
+
+    /**
+     * @dataProvider data_randomKeyValuePairs
+     */
+    public function testSetGetNamespacedSameParentNamespace(array $keyValuePairs):void {
+        $handler = $this->getMockBuilder(Handler::class)
+            ->getMock();
+        $session = new Session($handler);
+
+        $parentNamespace = implode(".", [
+            uniqid("namespace1"),
+            uniqid("namespace2"),
+        ]);
+
+        foreach($keyValuePairs as $key => $value) {
+            $newKey = implode(".", [
+                $parentNamespace,
+                $key,
+            ]);
+            $keyValuePairs[$newKey] = $value;
+            unset($keyValuePairs[$key]);
+        }
+
+        foreach($keyValuePairs as $key => $value) {
+            $session->set($key, $value);
+        }
+
+        foreach($keyValuePairs as $key => $value) {
+            self::assertEquals($value, $session->get($key));
+        }
+    }
+
+	/**
 	 * @@dataProvider data_randomKeyValuePairs
 	 */
 	public function testSetGetNotExistsOtherKey(array $keyValuePairs):void {
