@@ -123,8 +123,8 @@ class SessionTest extends TestCase {
         $session = new Session($handler);
 
         $parentNamespace = implode(".", [
-            uniqid("namespace1"),
-            uniqid("namespace2"),
+            uniqid("namespace1-"),
+            uniqid("namespace2-"),
         ]);
 
         foreach($keyValuePairs as $key => $value) {
@@ -212,7 +212,7 @@ class SessionTest extends TestCase {
 	/**
 	 * @dataProvider data_randomKeyValuePairs
 	 */
-	public function testDelete(array $keyValuePairs):void {
+    public function testRemove(array $keyValuePairs):void {
 		$handler = $this->getMockBuilder(Handler::class)
 			->getMock();
 		$session = new Session($handler);
@@ -230,5 +230,84 @@ class SessionTest extends TestCase {
 			$session->remove($key);
 			self::assertFalse($session->contains($key));
 		}
+	}
+
+	/**
+	 * @dataProvider data_randomKeyValuePairs
+	 */
+	public function testNamespaceKeyIsRemovedFromSession(array $keyValuePairs):void {
+    		$handler = $this->getMockBuilder(Handler::class)
+			->getMock();
+    		$session = new Session($handler);
+
+    		$parentNamespace = implode(".", [
+    			uniqid("namespace1-"),
+    			uniqid("namespace2-"),
+		]);
+
+    		foreach($keyValuePairs as $key => $value) {
+    			$fullKey = implode(".", [
+    				$parentNamespace,
+				$key,
+			]);
+
+    			$session->set($fullKey, $value);
+		}
+
+		$keyToRemove = array_rand($keyValuePairs);
+    		$fullKeyToRemove = implode(".", [
+    			$parentNamespace,
+			$keyToRemove,
+		]);
+    		$store = $session->getStore($parentNamespace);
+    		$store->remove($keyToRemove);
+    		unset($keyValuePairs[$keyToRemove]);
+
+    		foreach($keyValuePairs as $key => $value) {
+    			$fullKey = implode(".", [
+    				$parentNamespace,
+				$key,
+			]);
+
+    			self::assertTrue($session->contains($fullKey));
+		}
+
+		self::assertFalse($session->contains($fullKeyToRemove));
+	}
+
+	/**
+	 * @dataProvider data_randomKeyValuePairs
+	 */
+	public function testNamespaceKeyIsRemovedFromStore(array $keyValuePairs): void {
+		$handler = $this->getMockBuilder(Handler::class)
+			->getMock();
+		$session = new Session($handler);
+
+		$parentNamespace = implode(
+			".", [
+			uniqid("namespace1-"),
+			uniqid("namespace2-"),
+		]
+		);
+
+		foreach ($keyValuePairs as $key => $value) {
+			$fullKey = implode(".", [
+				$parentNamespace,
+				$key,
+			]);
+
+			$session->set($fullKey, $value);
+		}
+
+		$keyToRemove = array_rand($keyValuePairs);
+		$store = $session->getStore($parentNamespace);
+		$store->remove($keyToRemove);
+		unset($keyValuePairs[$keyToRemove]);
+
+		foreach ($keyValuePairs as $key => $value) {
+			self::assertTrue($store->contains($key));
+		}
+
+		self::assertFalse($store->contains($keyToRemove));
 	}
 }
