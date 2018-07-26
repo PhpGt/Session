@@ -26,14 +26,18 @@ Sessions are addressed using dot notation, allowing for handling categories of s
 
 ```php
 if($session->has("auth")) {
+// Remove the *whole* auth section of the session on logout.
 	if($action === "logout") {
 		$session->delete("auth");
 	}
 	else {
+// Output a variable within the auth namespace:
 		$message = "Welcome back, " . $session->get("auth.user.name");
 	}
 }
 else {
-	$message = "Please log in";
+// Pass the "auth" store to a class, so it 
+// can't read/write to other session variables:
+	AuthenticationSystem::beginLogin($session->getStore("auth"));
 }
 ```
