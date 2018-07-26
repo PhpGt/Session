@@ -74,9 +74,11 @@ class SessionStore {
 	public function setStore(string $namespace, SessionStore $newStore = null): void {
 		$namespaceParts = explode(".", $namespace);
 		$store = $this;
+		$nextStore = $store;
 
 		while (!empty($namespaceParts)) {
 			$storeName = array_shift($namespaceParts);
+			$store = $nextStore;
 			$nextStore = $store->getStore($storeName);
 
 			if (is_null($nextStore)) {
@@ -85,7 +87,6 @@ class SessionStore {
 					$this->session
 				);
 				$store->stores[$storeName] = $nextStore;
-				$store = $nextStore;
 			}
 		}
 	}
