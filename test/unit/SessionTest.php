@@ -350,4 +350,89 @@ class SessionTest extends TestCase {
 		self::assertNull($session->getStore($parentNamespace));
 		self::assertFalse($session->contains($parentNamespace));
 	}
+
+	/**
+	 * @dataProvider data_randomKeyValuePairs
+	 */
+	public function testRemoveSiblingNamespace(array $keyValuePairs) {
+		$handler = $this->getMockBuilder(Handler::class)
+			->getMock();
+		$session = new Session($handler);
+
+		$namespace0 = uniqid("namespace0-");
+		$namespace1a = uniqid("namespace1a-");
+		$namespace1b = uniqid("namespace1b-");
+
+		foreach($keyValuePairs as $key => $value) {
+			$fullKeyA = implode(".", [
+				$namespace0,
+				$namespace1a,
+				$key,
+			]);
+			$fullKeyB = implode(".", [
+				$namespace0,
+				$namespace1b,
+				$key,
+			]);
+
+			$session->set($fullKeyA, "a-value-" . $value);
+			$session->set($fullKeyB, "b-value-" . $value);
+		}
+
+		foreach($keyValuePairs as $key => $value) {
+			$fullKeyA = implode(".", [
+				$namespace0,
+				$namespace1a,
+				$key,
+			]);
+			$fullKeyB = implode(".", [
+				$namespace0,
+				$namespace1b,
+				$key,
+			]);
+
+			self::assertEquals(
+				"a-value-" . $value,
+				$session->get($fullKeyA)
+			);
+			self::assertEquals(
+				"b-value-" . $value,
+				$session->get($fullKeyB)
+			);
+		}
+
+		$session->remove(implode(".", [
+			$namespace0,
+			$namespace1a,
+		]));
+		self::assertFalse($session->contains($namespace1a));
+
+		foreach($keyValuePairs as $key => $value) {
+			$fullKeyA = implode(".", [
+				$namespace0,
+				$namespace1a,
+				$key,
+			]);
+			$fullKeyB = implode(".", [
+				$namespace0,
+				$namespace1b,
+				$key,
+			]);
+
+			self::assertTrue(
+				$session->contains($fullKeyB)
+			);
+			self::assertEquals(
+				"b-value-" . $value,
+				$session->get($fullKeyB)
+			);
+
+			self::assertFalse(
+				$session->contains($fullKeyA)
+			);
+			self::assertNull(
+				$session->get($fullKeyA)
+			);
+		}
+	}
 }

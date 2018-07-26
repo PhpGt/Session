@@ -53,7 +53,7 @@ class SessionStore {
 		$this->session->write();
 	}
 
-	public function getStore(string $namespace): ?SessionStore {
+	public function getStore(string $namespace):?SessionStore {
 		$namespaceParts = explode(".", $namespace);
 		$topLevelStoreName = array_shift($namespaceParts);
 
@@ -71,7 +71,10 @@ class SessionStore {
 		return $store->getStore($namespace);
 	}
 
-	public function setStore(string $namespace, SessionStore $newStore = null): void {
+	public function setStore(
+		string $namespace,
+		SessionStore $newStore = null
+	):void {
 		$namespaceParts = explode(".", $namespace);
 		$store = $this;
 		$nextStore = $store;
@@ -91,7 +94,7 @@ class SessionStore {
 		}
 	}
 
-	public function createStore(string $namespace): SessionStore {
+	public function createStore(string $namespace):SessionStore {
 		$this->setStore($namespace);
 		return $this->getStore($namespace);
 	}
@@ -116,7 +119,7 @@ class SessionStore {
 		return $store->getData($key);
 	}
 
-	public function set(string $key, $value): void {
+	public function set(string $key, $value):void {
 		$store = $this;
 		$lastDotPosition = strrpos($key, ".");
 
@@ -137,7 +140,7 @@ class SessionStore {
 		$store->write();
 	}
 
-	public function contains(string $key): bool {
+	public function contains(string $key):bool {
 		$store = $this;
 		$lastDotPosition = strrpos($key, ".");
 
@@ -147,7 +150,7 @@ class SessionStore {
 		}
 
 		if (is_null($store)) {
-			return null;
+			return false;
 		}
 
 		if ($lastDotPosition !== false) {
@@ -157,7 +160,7 @@ class SessionStore {
 		return $store->containsData($key);
 	}
 
-	public function remove(string $key): void {
+	public function remove(string $key):void {
 		$store = $this;
 		$lastDotPosition = strrpos($key, ".");
 
@@ -178,11 +181,11 @@ class SessionStore {
 		$store->write();
 	}
 
-	protected function getSession(): Session {
+	protected function getSession():Session {
 		return $this->session;
 	}
 
-	protected function getNamespaceFromKey(string $key): ?string {
+	protected function getNamespaceFromKey(string $key):?string {
 		$lastDotPostition = strrpos($key, ".");
 		if ($lastDotPostition === false) {
 			return null;
