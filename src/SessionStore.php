@@ -2,8 +2,6 @@
 namespace Gt\Session;
 
 class SessionStore {
-	use StoreContainer;
-
 	/** @var string */
 	protected $name;
 	/** @var Session */
@@ -16,12 +14,6 @@ class SessionStore {
 	public function __construct(string $name, Session $session) {
 		$this->name = $name;
 		$this->session = $session;
-	}
-
-	public function createStore(string $name, Session $session):self {
-		$newStore = new self($name, $session);
-		$this->stores[$name] = $newStore;
-		return $newStore;
 	}
 
 	public function setData(string $key, $value):void {
@@ -59,5 +51,146 @@ class SessionStore {
 
 	public function write():void {
 		$this->session->write();
+	}
+
+	public function getStore(string $namespace):?SessionStore {
+		$namespaceParts = explode(".", $namespace);
+		$topLevelStoreName = array_shift($namespaceParts);
+
+		/** @var SessionStore $store */
+		$store = $this->stores[$topLevelStoreName] ?? null;
+		if (is_null($store)) {
+			return null;
+		}
+
+		if (empty($namespaceParts)) {
+			return $store;
+		}
+
+		$namespace = implode(".", $namespaceParts);
+		return $store->getStore($namespace);
+	}
+
+	public function setStore(
+		string $namespace,
+		SessionStore $newStore = null
+	):void {
+		$namespaceParts = explode(".", $namespace);
+		$store = $this;
+		$nextStore = $store;
+
+		while (!empty($namespaceParts)) {
+			$storeName = array_shift($namespaceParts);
+			$store = $nextStore;
+			$nextStore = $store->getStore($storeName);
+
+			if (is_null($nextStore)) {
+				$nextStore = new SessionStore(
+					$storeName,
+					$this->session
+				);
+				$store->stores[$storeName] = $nextStore;
+			}
+		}
+	}
+
+	public function createStore(string $namespace):SessionStore {
+		$this->setStore($namespace);
+		return $this->getStore($namespace);
+	}
+
+	public function get(string $key) {
+		$store = $this;
+		$lastDotPosition = strrpos($key, ".");
+
+		if ($lastDotPosition !== false) {
+			$namespace = $this->getNamespaceFromKey($key);
+			$store = $this->getStore($namespace);
+		}
+
+		if (is_null($store)) {
+			return null;
+		}
+
+		if ($lastDotPosition !== false) {
+			$key = substr($key, $lastDotPosition + 1);
+		}
+
+		return $store->getData($key);
+	}
+
+	public function set(string $key, $value):void {
+		$store = $this;
+		$lastDotPosition = strrpos($key, ".");
+
+		if ($lastDotPosition !== false) {
+			$namespace = $this->getNamespaceFromKey($key);
+			$store = $this->getStore($namespace);
+
+			if (is_null($store)) {
+				$store = $this->createStore($namespace);
+			}
+		}
+
+		if ($lastDotPosition !== false) {
+			$key = substr($key, $lastDotPosition + 1);
+		}
+
+		$store->setData($key, $value);
+		$store->write();
+	}
+
+	public function contains(string $key):bool {
+		$store = $this;
+		$lastDotPosition = strrpos($key, ".");
+
+		if ($lastDotPosition !== false) {
+			$namespace = $this->getNamespaceFromKey($key);
+			$store = $this->getStore($namespace);
+		}
+
+		if (is_null($store)) {
+			return false;
+		}
+
+		if ($lastDotPosition !== false) {
+			$key = substr($key, $lastDotPosition + 1);
+		}
+
+		return $store->containsData($key);
+	}
+
+	public function remove(string $key):void {
+		$store = $this;
+		$lastDotPosition = strrpos($key, ".");
+
+		if ($lastDotPosition !== false) {
+			$namespace = $this->getNamespaceFromKey($key);
+			$store = $this->getStore($namespace);
+		}
+
+		if (is_null($store)) {
+			return;
+		}
+
+		if ($lastDotPosition !== false) {
+			$key = substr($key, $lastDotPosition + 1);
+		}
+
+		$store->removeDataOrStore($key);
+		$store->write();
+	}
+
+	protected function getSession():Session {
+		return $this->session;
+	}
+
+	protected function getNamespaceFromKey(string $key):?string {
+		$lastDotPostition = strrpos($key, ".");
+		if ($lastDotPostition === false) {
+			return null;
+		}
+
+		return substr($key, 0, $lastDotPostition);
 	}
 }
