@@ -53,17 +53,26 @@ class SessionStore {
 		$this->session->write();
 	}
 
-	public function getStore(string $namespace):?SessionStore {
+	public function getStore(
+		string $namespace,
+		bool $createIfNotExists = false
+	):?SessionStore {
 		$namespaceParts = explode(".", $namespace);
 		$topLevelStoreName = array_shift($namespaceParts);
 
 		/** @var SessionStore $store */
 		$store = $this->stores[$topLevelStoreName] ?? null;
-		if (is_null($store)) {
-			return null;
+		if(is_null($store)) {
+			if($createIfNotExists) {
+				$store = $this->createStore($namespace);
+				return $store;
+			}
+			else {
+				return null;
+			}
 		}
 
-		if (empty($namespaceParts)) {
+		if(empty($namespaceParts)) {
 			return $store;
 		}
 

@@ -68,8 +68,14 @@ class Session {
 		);
 	}
 
-	public function getStore(string $namespace) {
-		return $this->store->getStore($namespace);
+	public function getStore(
+		string $namespace,
+		bool $createIfNotExists = false
+	):?SessionStore {
+		return $this->store->getStore(
+			$namespace,
+			$createIfNotExists
+		);
 	}
 
 	public function get(string $key) {
