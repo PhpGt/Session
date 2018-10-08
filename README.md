@@ -25,7 +25,7 @@ Sessions are addressed using dot notation, allowing for handling categories of s
 ## Example usage: Welcome a user by their first name or log out the user
 
 ```php
-if($session->has("auth")) {
+if($session->contains("auth")) {
 // Remove the *whole* auth section of the session on logout.
 	if($action === "logout") {
 		$session->delete("auth");
