@@ -1,7 +1,6 @@
 <?php
 namespace Gt\Session;
 
-use ArrayAccess;
 use SessionHandlerInterface;
 
 class Session {

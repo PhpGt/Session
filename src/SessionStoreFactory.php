@@ -4,10 +4,13 @@ namespace Gt\Session;
 class SessionStoreFactory {
 	public static function create(string $namespace, Session $session):SessionStore {
 		$namespaceParts = explode(".", $namespace);
-		$store = new SessionStore(array_shift($namespaceParts), $session);
+		$store = new SessionStore(
+			array_shift($namespaceParts),
+			$session
+		);
 
 		foreach($namespaceParts as $part) {
-			$innerStore = $store->createStore($part, $session);
+			$innerStore = $store->createStore($part);
 			$store = $innerStore;
 		}
 

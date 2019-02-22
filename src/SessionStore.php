@@ -10,10 +10,17 @@ class SessionStore {
 	protected $stores;
 	/** @var string[] */
 	protected $data;
+	/** @var SessionStore */
+	protected $parentStore;
 
-	public function __construct(string $name, Session $session) {
+	public function __construct(
+		string $name,
+		Session $session,
+		self $parentStore = null
+	) {
 		$this->name = $name;
 		$this->session = $session;
+		$this->parentStore = $parentStore;
 	}
 
 	public function setData(string $key, $value):void {
@@ -81,8 +88,7 @@ class SessionStore {
 	}
 
 	public function setStore(
-		string $namespace,
-		SessionStore $newStore = null
+		string $namespace
 	):void {
 		$namespaceParts = explode(".", $namespace);
 		$store = $this;
@@ -96,7 +102,8 @@ class SessionStore {
 			if (is_null($nextStore)) {
 				$nextStore = new SessionStore(
 					$storeName,
-					$this->session
+					$this->session,
+					$store
 				);
 				$store->stores[$storeName] = $nextStore;
 			}
@@ -169,7 +176,16 @@ class SessionStore {
 		return $store->containsData($key);
 	}
 
-	public function remove(string $key):void {
+	public function remove(string $key = null):void {
+		if(is_null($key)) {
+			foreach($this->stores as $i => $childStore) {
+				unset($this->stores[$i]);
+			}
+
+			$this->parentStore->remove($this->name);
+			return;
+		}
+
 		$store = $this;
 		$lastDotPosition = strrpos($key, ".");
 
