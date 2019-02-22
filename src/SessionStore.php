@@ -88,8 +88,7 @@ class SessionStore {
 	}
 
 	public function setStore(
-		string $namespace,
-		SessionStore $newStore = null
+		string $namespace
 	):void {
 		$namespaceParts = explode(".", $namespace);
 		$store = $this;
