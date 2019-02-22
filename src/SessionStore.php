@@ -21,6 +21,7 @@ class SessionStore {
 		$this->name = $name;
 		$this->session = $session;
 		$this->parentStore = $parentStore;
+		$this->stores = [];
 	}
 
 	public function setData(string $key, $value):void {
