@@ -8,7 +8,7 @@ class SessionStore {
 	protected $session;
 	/** @var SessionStore[] */
 	protected $stores;
-	/** @var string[] */
+	/** @var array */
 	protected $data;
 	/** @var SessionStore */
 	protected $parentStore;
@@ -22,6 +22,7 @@ class SessionStore {
 		$this->session = $session;
 		$this->parentStore = $parentStore;
 		$this->stores = [];
+		$this->data = [];
 	}
 
 	public function setData(string $key, $value):void {
