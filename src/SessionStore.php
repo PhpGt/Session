@@ -86,7 +86,7 @@ class SessionStore {
 		}
 
 		$namespace = implode(".", $namespaceParts);
-		return $store->getStore($namespace);
+		return $store->getStore($namespace, $createIfNotExists);
 	}
 
 	public function setStore(
