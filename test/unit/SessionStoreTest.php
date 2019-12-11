@@ -63,4 +63,22 @@ class SessionStoreTest extends TestCase {
 			$session->getStore("gt.test.session")
 		);
 	}
+
+	public function testGetCreatesNonExistantStore() {
+		/** @var MockObject|SessionHandler $handler */
+		$handler = $this->getMockBuilder(Handler::class)
+			->getMock();
+		$session = new Session($handler);
+
+		$trunkStore = $session->getStore(
+			"gt.test.session",
+			true
+		);
+		$leafStore = $session->getStore(
+			"gt.test.session.leaf",
+			true
+		);
+
+		self::assertNotNull($leafStore);
+	}
 }
