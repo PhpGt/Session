@@ -32,7 +32,7 @@ if($session->contains("auth")) {
 	}
 	else {
 // Output a variable within the auth namespace:
-		$message = "Welcome back, " . $session->get("auth.user.name");
+		$message = "Welcome back, " . $session->getString("auth.user.name");
 	}
 }
 else {
