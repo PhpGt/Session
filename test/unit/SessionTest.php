@@ -7,6 +7,7 @@ use Gt\Session\Test\Helper\DataProvider\ConfigProvider;
 use Gt\Session\Test\Helper\DataProvider\StringProvider;
 use Gt\Session\Test\Helper\FunctionMocker;
 use Gt\Session\Test\Helper\DataProvider\KeyValuePairProvider;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
 class SessionTest extends TestCase {
@@ -16,14 +17,17 @@ class SessionTest extends TestCase {
 
 	public function setUp():void {
 		FunctionMocker::mock("session_start");
+		FunctionMocker::mock("session_id");
+		FunctionMocker::mock("session_destroy");
 	}
 
 	public function testSessionStarts():void {
+		/** @var Handler|MockObject $handler */
 		$handler = $this->getMockBuilder(Handler::class)
 			->getMock();
 
 		self::assertEmpty(FunctionMocker::$mockCalls["session_start"]);
-		$session = new Session($handler);
+		new Session($handler);
 		self::assertCount(
 			1,
 			FunctionMocker::$mockCalls["session_start"]
@@ -34,10 +38,11 @@ class SessionTest extends TestCase {
 	 * @dataProvider data_randomConfig
 	 */
 	public function testSessionStartsWithConfig(array $config):void {
+		/** @var Handler|MockObject $handler */
 		$handler = $this->getMockBuilder(Handler::class)
 			->getMock();
 
-		$session = new Session($handler ,$config);
+		new Session($handler ,$config);
 		$sessionStartParameter = FunctionMocker::$mockCalls["session_start"][0][0];
 
 		foreach($config as $key => $value) {
@@ -49,7 +54,19 @@ class SessionTest extends TestCase {
 		}
 	}
 
+	/** @dataProvider data_randomConfig */
+	public function testSessionStartDestroysFailedSession(array $config):void {
+		/** @var Handler|MockObject $handler */
+		$handler = $this->getMockBuilder(Handler::class)
+			->getMock();
+
+		FunctionMocker::$callState["session_start__fail"] = true;
+		new Session($handler, $config);
+		self::assertCount(1, FunctionMocker::$mockCalls["session_destroy"]);
+	}
+
 	public function testWriteSessionDataCalled() {
+		/** @var Handler|MockObject $handler */
 		$handler = $this->getMockBuilder(Handler::class)
 			->getMock();
 		$handler->expects($this->exactly(2))
@@ -64,6 +81,7 @@ class SessionTest extends TestCase {
 	 * @dataProvider data_randomString
 	 */
 	public function testGetReturnsNull(string $randomString):void {
+		/** @var Handler|MockObject $handler */
 		$handler = $this->getMockBuilder(Handler::class)
 			->getMock();
 		$session = new Session($handler);
@@ -74,6 +92,7 @@ class SessionTest extends TestCase {
 	 * @@dataProvider data_randomKeyValuePairs
 	 */
 	public function testSetGet(array $keyValuePairs):void {
+		/** @var Handler|MockObject $handler */
 		$handler = $this->getMockBuilder(Handler::class)
 			->getMock();
 		$session = new Session($handler);
@@ -91,6 +110,7 @@ class SessionTest extends TestCase {
 	 * @dataProvider data_randomKeyValuePairs
 	 */
 	public function testSetGetNamespaced(array $keyValuePairs):void {
+		/** @var Handler|MockObject $handler */
 		$handler = $this->getMockBuilder(Handler::class)
 			->getMock();
 		$session = new Session($handler);
@@ -118,14 +138,15 @@ class SessionTest extends TestCase {
      * @dataProvider data_randomKeyValuePairs
      */
     public function testSetGetNamespacedSameParentNamespace(array $keyValuePairs):void {
-        $handler = $this->getMockBuilder(Handler::class)
-            ->getMock();
-        $session = new Session($handler);
+	/** @var Handler|MockObject $handler */
+	$handler = $this->getMockBuilder(Handler::class)
+	    ->getMock();
+	$session = new Session($handler);
 
-        $parentNamespace = implode(".", [
-            uniqid("namespace1-"),
-            uniqid("namespace2-"),
-        ]);
+	$parentNamespace = implode(".", [
+	    uniqid("namespace1-"),
+	    uniqid("namespace2-"),
+	]);
 
         foreach($keyValuePairs as $key => $value) {
             $newKey = implode(".", [
@@ -149,6 +170,7 @@ class SessionTest extends TestCase {
 	 * @@dataProvider data_randomKeyValuePairs
 	 */
 	public function testSetGetNotExistsOtherKey(array $keyValuePairs):void {
+		/** @var Handler|MockObject $handler */
 		$handler = $this->getMockBuilder(Handler::class)
 			->getMock();
 		$session = new Session($handler);
@@ -179,6 +201,7 @@ class SessionTest extends TestCase {
 	 * @dataProvider data_randomKeyValuePairs
 	 */
 	public function testContains(array $keyValuePairs):void {
+		/** @var Handler|MockObject $handler */
 		$handler = $this->getMockBuilder(Handler::class)
 			->getMock();
 		$session = new Session($handler);
@@ -196,6 +219,7 @@ class SessionTest extends TestCase {
 	 * @dataProvider data_randomKeyValuePairs
 	 */
 	public function testNotContains(array $keyValuePairs):void {
+		/** @var Handler|MockObject $handler */
 		$handler = $this->getMockBuilder(Handler::class)
 			->getMock();
 		$session = new Session($handler);
@@ -213,6 +237,7 @@ class SessionTest extends TestCase {
 	 * @dataProvider data_randomKeyValuePairs
 	 */
     public function testRemove(array $keyValuePairs):void {
+	    /** @var Handler|MockObject $handler */
 		$handler = $this->getMockBuilder(Handler::class)
 			->getMock();
 		$session = new Session($handler);
@@ -236,6 +261,7 @@ class SessionTest extends TestCase {
 	 * @dataProvider data_randomKeyValuePairs
 	 */
 	public function testNamespaceKeyIsRemovedFromSession(array $keyValuePairs):void {
+		/** @var Handler|MockObject $handler */
     		$handler = $this->getMockBuilder(Handler::class)
 			->getMock();
     		$session = new Session($handler);
@@ -279,6 +305,7 @@ class SessionTest extends TestCase {
 	 * @dataProvider data_randomKeyValuePairs
 	 */
 	public function testNamespaceKeyIsRemovedFromStore(array $keyValuePairs): void {
+		/** @var Handler|MockObject $handler */
 		$handler = $this->getMockBuilder(Handler::class)
 			->getMock();
 		$session = new Session($handler);
@@ -313,6 +340,7 @@ class SessionTest extends TestCase {
 	 * @dataProvider data_randomKeyValuePairs
 	 */
 	public function testRemoveNamespace(array $keyValuePairs) {
+		/** @var Handler|MockObject $handler */
 		$handler = $this->getMockBuilder(Handler::class)
 			->getMock();
 		$session = new Session($handler);
@@ -355,6 +383,7 @@ class SessionTest extends TestCase {
 	 * @dataProvider data_randomKeyValuePairs
 	 */
 	public function testRemoveSiblingNamespace(array $keyValuePairs) {
+		/** @var Handler|MockObject $handler */
 		$handler = $this->getMockBuilder(Handler::class)
 			->getMock();
 		$session = new Session($handler);

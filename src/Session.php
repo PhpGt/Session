@@ -36,15 +36,23 @@ class Session implements SessionContainer {
 			$config["save_path"] ?? self::DEFAULT_SESSION_PATH
 		);
 		$sessionName = $config["name"] ?? self::DEFAULT_SESSION_NAME;
-		session_start([
-			"save_path" => $sessionPath,
-			"name" => $sessionName,
-			"cookie_lifetime" => $config["cookie_lifetime"] ?? self::DEFAULT_SESSION_LIFETIME,
-			"cookie_path" => $config["cookie_path"] ?? self::DEFAULT_COOKIE_PATH,
-			"cookie_domain" => $config["cookie_domain"] ?? self::DEFAULT_SESSION_DOMAIN,
-			"cookie_secure" => $config["cookie_secure"] ?? self::DEFAULT_SESSION_SECURE,
-			"cookie_httponly" => $config["cookie_httponly"] ?? self::DEFAULT_SESSION_HTTPONLY,
-		]);
+
+		do {
+			$success = @session_start([
+				"save_path" => $sessionPath,
+				"name" => $sessionName,
+				"cookie_lifetime" => $config["cookie_lifetime"] ?? self::DEFAULT_SESSION_LIFETIME,
+				"cookie_path" => $config["cookie_path"] ?? self::DEFAULT_COOKIE_PATH,
+				"cookie_domain" => $config["cookie_domain"] ?? self::DEFAULT_SESSION_DOMAIN,
+				"cookie_secure" => $config["cookie_secure"] ?? self::DEFAULT_SESSION_SECURE,
+				"cookie_httponly" => $config["cookie_httponly"] ?? self::DEFAULT_SESSION_HTTPONLY,
+			]);
+
+			if(!$success) {
+				session_destroy();
+			}
+		}
+		while(!$success);
 
 		$this->sessionHandler->open($sessionPath, $sessionName);
 		$this->store = $this->readSessionData() ?: null;
