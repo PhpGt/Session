@@ -1,7 +1,7 @@
 <?php
 namespace Gt\Session;
 
-class SessionStore {
+class SessionStore implements SessionContainer {
 	/** @var string */
 	protected $name;
 	/** @var Session */

@@ -3,7 +3,7 @@ namespace Gt\Session;
 
 use SessionHandlerInterface;
 
-class Session {
+class Session implements SessionContainer {
 	const DEFAULT_SESSION_NAME = "PHPSESSID";
 	const DEFAULT_SESSION_LIFETIME = 0;
 	const DEFAULT_SESSION_PATH = "/tmp";
