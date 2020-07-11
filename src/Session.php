@@ -37,10 +37,26 @@ class Session implements SessionContainer {
 		);
 		$sessionName = $config["name"] ?? self::DEFAULT_SESSION_NAME;
 
-		if(!$this->start($sessionPath, $sessionName, $config)) {
-			@session_destroy();
-			$this->start($sessionPath, $sessionName, $config);
+		// Allow a single failure to start session. If it fails to start,
+		// destroy the existing session.
+		$startAttempts = 0;
+		do {
+			$success = @session_start([
+				"save_path" => $sessionPath,
+				"name" => $sessionName,
+				"cookie_lifetime" => $config["cookie_lifetime"] ?? self::DEFAULT_SESSION_LIFETIME,
+				"cookie_path" => $config["cookie_path"] ?? self::DEFAULT_COOKIE_PATH,
+				"cookie_domain" => $config["cookie_domain"] ?? self::DEFAULT_SESSION_DOMAIN,
+				"cookie_secure" => $config["cookie_secure"] ?? self::DEFAULT_SESSION_SECURE,
+				"cookie_httponly" => $config["cookie_httponly"] ?? self::DEFAULT_SESSION_HTTPONLY,
+			]);
+
+			if(!$success) {
+				@session_destroy();
+			}
+			$startAttempts++;
 		}
+		while(!$success && $startAttempts < 1);
 
 		$this->sessionHandler->open($sessionPath, $sessionName);
 		$this->store = $this->readSessionData() ?: null;
@@ -96,22 +112,6 @@ class Session implements SessionContainer {
 		}
 
 		return session_id();
-	}
-
-	protected function start(
-		string $sessionPath,
-		string $sessionName,
-		iterable $config
-	):bool {
-		return @session_start([
-			"save_path" => $sessionPath,
-			"name" => $sessionName,
-			"cookie_lifetime" => $config["cookie_lifetime"] ?? self::DEFAULT_SESSION_LIFETIME,
-			"cookie_path" => $config["cookie_path"] ?? self::DEFAULT_COOKIE_PATH,
-			"cookie_domain" => $config["cookie_domain"] ?? self::DEFAULT_SESSION_DOMAIN,
-			"cookie_secure" => $config["cookie_secure"] ?? self::DEFAULT_SESSION_SECURE,
-			"cookie_httponly" => $config["cookie_httponly"] ?? self::DEFAULT_SESSION_HTTPONLY,
-		]);
 	}
 
 	protected function getAbsolutePath(string $path):string {
