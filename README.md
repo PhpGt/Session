@@ -6,7 +6,7 @@ Sessions are addressed using dot notation, allowing for handling categories of s
 
 ***
 
-<a href="https://circleci.com/gh/PhpGt/Session" target="_blank">
+<a href="https://github.com/PhpGt/Session/actions" target="_blank">
 	<img src="https://badge.status.php.gt/session-build.svg" alt="Build status" />
 </a>
 <a href="https://scrutinizer-ci.com/g/PhpGt/Session" target="_blank">
