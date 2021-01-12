@@ -36,6 +36,7 @@ class Session implements SessionContainer {
 			$config["save_path"] ?? self::DEFAULT_SESSION_PATH
 		);
 		$sessionName = $config["name"] ?? self::DEFAULT_SESSION_NAME;
+		$sessionStartAttempts = 0;
 
 		do {
 			$success = @session_start([
@@ -49,10 +50,11 @@ class Session implements SessionContainer {
 			]);
 
 			if(!$success) {
-				session_destroy();
+				$sessionStartAttempts++;
+				@session_destroy();
 			}
 		}
-		while(!$success);
+		while(!$success && $sessionStartAttempts <= 1);
 
 		$this->sessionHandler->open($sessionPath, $sessionName);
 		$this->store = $this->readSessionData() ?: null;
