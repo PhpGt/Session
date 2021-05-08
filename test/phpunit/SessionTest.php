@@ -15,7 +15,7 @@ class SessionTest extends TestCase {
 	use StringProvider;
 	use ConfigProvider;
 
-	public function setUp():void {
+	protected function setUp():void {
 		FunctionMocker::mock("session_start");
 		FunctionMocker::mock("session_id");
 		FunctionMocker::mock("session_destroy");
