@@ -13,7 +13,7 @@ use SessionHandler;
 class SessionStoreTest extends TestCase {
 	use KeyValuePairProvider;
 
-	public function setUp():void {
+	protected function setUp():void {
 		FunctionMocker::mock("session_start");
 		FunctionMocker::mock("session_id");
 	}
