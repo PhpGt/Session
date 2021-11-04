@@ -36,25 +36,22 @@ class Session implements SessionContainer {
 			$config["save_path"] ?? self::DEFAULT_SESSION_PATH
 		);
 		$sessionName = $config["name"] ?? self::DEFAULT_SESSION_NAME;
-		$sessionStartAttempts = 0;
 
-		do {
-			$success = @session_start([
-				"save_path" => $sessionPath,
-				"name" => $sessionName,
-				"cookie_lifetime" => $config["cookie_lifetime"] ?? self::DEFAULT_SESSION_LIFETIME,
-				"cookie_path" => $config["cookie_path"] ?? self::DEFAULT_COOKIE_PATH,
-				"cookie_domain" => $config["cookie_domain"] ?? self::DEFAULT_SESSION_DOMAIN,
-				"cookie_secure" => $config["cookie_secure"] ?? self::DEFAULT_SESSION_SECURE,
-				"cookie_httponly" => $config["cookie_httponly"] ?? self::DEFAULT_SESSION_HTTPONLY,
-			]);
+		$success = session_start([
+			"save_path" => $sessionPath,
+			"name" => $sessionName,
+			"serialize_handler" => "php_serialize",
+			"cookie_lifetime" => $config["cookie_lifetime"] ?? self::DEFAULT_SESSION_LIFETIME,
+			"cookie_path" => $config["cookie_path"] ?? self::DEFAULT_COOKIE_PATH,
+			"cookie_domain" => $config["cookie_domain"] ?? self::DEFAULT_SESSION_DOMAIN,
+			"cookie_secure" => $config["cookie_secure"] ?? self::DEFAULT_SESSION_SECURE,
+			"cookie_httponly" => $config["cookie_httponly"] ?? self::DEFAULT_SESSION_HTTPONLY,
+		]);
 
-			if(!$success) {
-				$sessionStartAttempts++;
-				@session_destroy();
-			}
+		if(!$success) {
+// TODO: Throw exception after #131 investigated.
+			var_dump($sessionPath, $sessionName, $this->id);die("Session starting failed");
 		}
-		while(!$success && $sessionStartAttempts <= 1);
 
 		$this->sessionHandler->open($sessionPath, $sessionName);
 		$this->store = $this->readSessionData() ?: null;
@@ -137,8 +134,8 @@ class Session implements SessionContainer {
 		return unserialize($this->sessionHandler->read($this->id));
 	}
 
-	public function write() {
-		$this->sessionHandler->write(
+	public function write():bool {
+		return $this->sessionHandler->write(
 			$this->id,
 			serialize($this->store)
 		);
