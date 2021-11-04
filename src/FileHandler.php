@@ -4,6 +4,7 @@ namespace Gt\Session;
 use DirectoryIterator;
 
 class FileHandler extends Handler {
+	const EMPTY_PHP_ARRAY = "a:0:{}";
 	protected $path;
 	protected $cache;
 
@@ -65,8 +66,12 @@ class FileHandler extends Handler {
 	 * @param string $session_data
 	 */
 	public function write($session_id, $session_data):bool {
+		if($session_data === self::EMPTY_PHP_ARRAY) {
+			return true;
+		}
 		$filePath = $this->getFilePath($session_id);
-		return file_put_contents($filePath, $session_data) > 0;
+		$bytesWritten = file_put_contents($filePath, $session_data);
+		return $bytesWritten !== false;
 	}
 
 	/**
