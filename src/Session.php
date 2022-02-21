@@ -1,9 +1,14 @@
 <?php
 namespace Gt\Session;
 
+use DateTimeInterface;
+use Gt\TypeSafeGetter\NullableTypeSafeGetter;
+use Gt\TypeSafeGetter\TypeSafeGetter;
 use SessionHandlerInterface;
 
-class Session implements SessionContainer {
+class Session implements SessionContainer, TypeSafeGetter {
+	use NullableTypeSafeGetter;
+
 	const DEFAULT_SESSION_NAME = "PHPSESSID";
 	const DEFAULT_SESSION_LIFETIME = 0;
 	const DEFAULT_SESSION_PATH = "/tmp";
@@ -37,21 +42,23 @@ class Session implements SessionContainer {
 		);
 		$sessionName = $config["name"] ?? self::DEFAULT_SESSION_NAME;
 
-		$success = session_start([
-			"save_path" => $sessionPath,
-			"name" => $sessionName,
-			"serialize_handler" => "php_serialize",
-			"cookie_lifetime" => $config["cookie_lifetime"] ?? self::DEFAULT_SESSION_LIFETIME,
-			"cookie_path" => $config["cookie_path"] ?? self::DEFAULT_COOKIE_PATH,
-			"cookie_domain" => $config["cookie_domain"] ?? self::DEFAULT_SESSION_DOMAIN,
-			"cookie_secure" => $config["cookie_secure"] ?? self::DEFAULT_SESSION_SECURE,
-			"cookie_httponly" => $config["cookie_httponly"] ?? self::DEFAULT_SESSION_HTTPONLY,
-		]);
+		do {
+			$success = session_start([
+				"save_path" => $sessionPath,
+				"name" => $sessionName,
+				"serialize_handler" => "php_serialize",
+				"cookie_lifetime" => $config["cookie_lifetime"] ?? self::DEFAULT_SESSION_LIFETIME,
+				"cookie_path" => $config["cookie_path"] ?? self::DEFAULT_COOKIE_PATH,
+				"cookie_domain" => $config["cookie_domain"] ?? self::DEFAULT_SESSION_DOMAIN,
+				"cookie_secure" => $config["cookie_secure"] ?? self::DEFAULT_SESSION_SECURE,
+				"cookie_httponly" => $config["cookie_httponly"] ?? self::DEFAULT_SESSION_HTTPONLY,
+			]);
 
-		if(!$success) {
-// TODO: Throw exception after #131 investigated.
-			var_dump($sessionPath, $sessionName, $this->id);die("Session starting failed");
+			if(!$success) {
+				session_destroy();
+			}
 		}
+		while(!$success);
 
 		$this->sessionHandler->open($sessionPath, $sessionName);
 		$this->store = $this->readSessionData() ?: null;
@@ -84,10 +91,9 @@ class Session implements SessionContainer {
 		);
 	}
 
-	public function get(string $key) {
+	public function get(string $key):mixed {
 		return $this->store->get($key);
 	}
-
 	public function set(string $key, $value):void {
 		$this->store->set($key, $value);
 	}

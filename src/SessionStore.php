@@ -1,7 +1,14 @@
 <?php
 namespace Gt\Session;
 
-class SessionStore implements SessionContainer {
+use DateTime;
+use DateTimeInterface;
+use Gt\TypeSafeGetter\NullableTypeSafeGetter;
+use Gt\TypeSafeGetter\TypeSafeGetter;
+
+class SessionStore implements SessionContainer, TypeSafeGetter {
+	use NullableTypeSafeGetter;
+
 	/** @var string */
 	protected $name;
 	/** @var Session */
@@ -25,7 +32,7 @@ class SessionStore implements SessionContainer {
 		$this->data = [];
 	}
 
-	public function setData(string $key, $value):void {
+	public function setData(string $key, mixed $value):void {
 		$this->data[$key] = $value;
 	}
 
@@ -117,7 +124,7 @@ class SessionStore implements SessionContainer {
 		return $this->getStore($namespace);
 	}
 
-	public function get(string $key) {
+	public function get(string $key):mixed {
 		$store = $this;
 		$lastDotPosition = strrpos($key, ".");
 

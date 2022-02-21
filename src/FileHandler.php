@@ -13,7 +13,7 @@ class FileHandler extends Handler {
 	 * @param string $save_path The path where to store/retrieve the session.
 	 * @param string $name The session name.
 	 */
-	public function open($save_path, $name):bool {
+	public function open(string $save_path, string $name):bool {
 		$success = true;
 
 		$save_path = str_replace(
@@ -45,7 +45,7 @@ class FileHandler extends Handler {
 	 * @link http://php.net/manual/en/sessionhandlerinterface.read.php
 	 * @param string $session_id
 	 */
-	public function read($session_id):string {
+	public function read(string $session_id):string {
 		if(isset($this->cache[$session_id])) {
 			return $this->cache[$session_id];
 		}
@@ -65,7 +65,7 @@ class FileHandler extends Handler {
 	 * @param string $session_id
 	 * @param string $session_data
 	 */
-	public function write($session_id, $session_data):bool {
+	public function write(string $session_id, string $session_data):bool {
 		if($session_data === self::EMPTY_PHP_ARRAY) {
 			return true;
 		}
@@ -76,10 +76,10 @@ class FileHandler extends Handler {
 
 	/**
 	 * @link http://php.net/manual/en/sessionhandlerinterface.destroy.php
-	 * @param string $session_id
+	 * @param string $id
 	 */
-	public function destroy($session_id):bool {
-		$filePath = $this->getFilePath($session_id);
+	public function destroy($id):bool {
+		$filePath = $this->getFilePath($id);
 
 		if(file_exists($filePath)) {
 			return unlink($filePath);
