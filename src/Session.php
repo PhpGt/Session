@@ -24,9 +24,10 @@ class Session implements SessionContainer, TypeSafeGetter {
 	/** @var SessionStore */
 	protected $store;
 
+	/** @param array<string, string> $config */
 	public function __construct(
 		SessionHandlerInterface $sessionHandler,
-		iterable $config = [],
+		array $config = [],
 		string $id = null
 	) {
 		$this->sessionHandler = $sessionHandler;
@@ -61,7 +62,7 @@ class Session implements SessionContainer, TypeSafeGetter {
 		while(!$success);
 
 		$this->sessionHandler->open($sessionPath, $sessionName);
-		$this->store = $this->readSessionData() ?: null;
+		$this->store = $this->readSessionData();
 		if(is_null($this->store)) {
 			$this->store = new SessionStore(__NAMESPACE__, $this);
 		}
@@ -94,7 +95,8 @@ class Session implements SessionContainer, TypeSafeGetter {
 	public function get(string $key):mixed {
 		return $this->store->get($key);
 	}
-	public function set(string $key, $value):void {
+
+	public function set(string $key, mixed $value):void {
 		$this->store->set($key, $value);
 	}
 
@@ -136,8 +138,8 @@ class Session implements SessionContainer, TypeSafeGetter {
 		return session_create_id();
 	}
 
-	protected function readSessionData() {
-		return unserialize($this->sessionHandler->read($this->id));
+	protected function readSessionData():?SessionStore {
+		return unserialize($this->sessionHandler->read($this->id)) ?: null;
 	}
 
 	public function write():bool {

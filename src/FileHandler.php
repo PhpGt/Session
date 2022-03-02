@@ -5,8 +5,9 @@ use DirectoryIterator;
 
 class FileHandler extends Handler {
 	const EMPTY_PHP_ARRAY = "a:0:{}";
-	protected $path;
-	protected $cache;
+	protected string $path;
+	/** @var array<string, mixed>> */
+	protected array $cache;
 
 	/**
 	 * @link http://php.net/manual/en/sessionhandlerinterface.open.php
@@ -78,7 +79,7 @@ class FileHandler extends Handler {
 	 * @link http://php.net/manual/en/sessionhandlerinterface.destroy.php
 	 * @param string $id
 	 */
-	public function destroy($id):bool {
+	public function destroy(string $id = ""):bool {
 		$filePath = $this->getFilePath($id);
 
 		if(file_exists($filePath)) {
@@ -92,9 +93,10 @@ class FileHandler extends Handler {
 	 * @link http://php.net/manual/en/sessionhandlerinterface.gc.php
 	 * @param int $maxlifetime
 	 */
-	public function gc($maxlifetime):bool {
+	public function gc($maxlifetime):int|false {
 		$now = time();
 		$expired = $now - $maxlifetime;
+		$num = 0;
 
 		foreach(new DirectoryIterator($this->path) as $fileInfo) {
 			if(!$fileInfo->isFile()) {
@@ -106,10 +108,11 @@ class FileHandler extends Handler {
 				if(!unlink($fileInfo->getPathname())) {
 					return false;
 				}
+				$num++;
 			}
 		}
 
-		return true;
+		return $num;
 	}
 
 	protected function getFilePath(string $id):string {
