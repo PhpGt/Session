@@ -1,6 +1,7 @@
 <?php
 namespace Gt\Session\Test;
 
+use DateTime;
 use Gt\Session\Handler;
 use Gt\Session\Session;
 use Gt\Session\SessionStore;
@@ -13,7 +14,7 @@ use SessionHandler;
 class SessionStoreTest extends TestCase {
 	use KeyValuePairProvider;
 
-	public function setUp():void {
+	protected function setUp():void {
 		FunctionMocker::mock("session_start");
 		FunctionMocker::mock("session_id");
 	}
@@ -80,5 +81,57 @@ class SessionStoreTest extends TestCase {
 		);
 
 		self::assertNotNull($leafStore);
+	}
+
+	public function testGetString():void {
+		$session = $this->createMock(Session::class);
+		$sut = new SessionStore("test", $session);
+
+		$numericValue = rand(1000, 9999);
+		$sut->set("test.value", $numericValue);
+
+		self::assertSame((string)$numericValue, $sut->getString("test.value"));
+	}
+
+	public function testGetInt():void {
+		$session = $this->createMock(Session::class);
+		$sut = new SessionStore("test", $session);
+
+		$numericStringValue = (string)rand(1000, 9999);
+		$sut->set("test.value", $numericStringValue);
+
+		self::assertSame((int)$numericStringValue, $sut->getInt("test.value"));
+	}
+
+	public function testGetFloat():void {
+		$session = $this->createMock(Session::class);
+		$sut = new SessionStore("test", $session);
+
+		$numericStringValue = (string)(rand(1000, 9999) - 0.105);
+		$sut->set("test.value", $numericStringValue);
+
+		self::assertSame((float)$numericStringValue, $sut->getFloat("test.value"));
+	}
+
+	public function testGetBool():void {
+		$session = $this->createMock(Session::class);
+		$sut = new SessionStore("test", $session);
+
+		$numericValue = rand(0, 1);
+		$sut->set("test.value", $numericValue);
+
+		self::assertSame((bool)$numericValue, $sut->getBool("test.value"));
+	}
+
+	public function testGetDateTime():void {
+		$session = $this->createMock(Session::class);
+		$sut = new SessionStore("test", $session);
+
+		$numericValue = time();
+		$sut->set("test.value", $numericValue);
+
+		$dateTime = new DateTime();
+		$dateTime->setTimestamp($numericValue);
+		self::assertEquals($dateTime, $sut->getDateTime("test.value"));
 	}
 }
