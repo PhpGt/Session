@@ -2,17 +2,19 @@
 namespace Gt\Session;
 
 class SessionArrayWrapper implements SessionContainer {
-	private $sourceArray;
+	/** @var array<string, mixed> */
+	private array $sourceArray;
 
+	/** @param array<string, mixed> &$sourceArray */
 	public function __construct(array &$sourceArray) {
 		$this->sourceArray = &$sourceArray;
 	}
 
-	public function get(string $key) {
+	public function get(string $key):mixed {
 		return $this->sourceArray[$key] ?? null;
 	}
 
-	public function set(string $key, $value) {
+	public function set(string $key, mixed $value):void {
 		$this->sourceArray[$key] = $value;
 	}
 

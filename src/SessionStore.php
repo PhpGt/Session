@@ -1,17 +1,19 @@
 <?php
 namespace Gt\Session;
 
-class SessionStore implements SessionContainer {
-	/** @var string */
-	protected $name;
-	/** @var Session */
-	protected $session;
-	/** @var SessionStore[] */
-	protected $stores;
-	/** @var array */
-	protected $data;
-	/** @var SessionStore */
-	protected $parentStore;
+use Gt\TypeSafeGetter\NullableTypeSafeGetter;
+use Gt\TypeSafeGetter\TypeSafeGetter;
+
+class SessionStore implements SessionContainer, TypeSafeGetter {
+	use NullableTypeSafeGetter;
+
+	protected string $name;
+	protected Session $session;
+	/** @var array<SessionStore> */
+	protected array $stores;
+	/** @var array<string, mixed> */
+	protected array $data;
+	protected ?SessionStore $parentStore;
 
 	public function __construct(
 		string $name,
@@ -25,11 +27,11 @@ class SessionStore implements SessionContainer {
 		$this->data = [];
 	}
 
-	public function setData(string $key, $value):void {
+	public function setData(string $key, mixed $value):void {
 		$this->data[$key] = $value;
 	}
 
-	public function getData(string $key) {
+	public function getData(string $key):mixed {
 		return $this->data[$key] ?? null;
 	}
 
@@ -69,12 +71,10 @@ class SessionStore implements SessionContainer {
 		$namespaceParts = explode(".", $namespace);
 		$topLevelStoreName = array_shift($namespaceParts);
 
-		/** @var SessionStore $store */
 		$store = $this->stores[$topLevelStoreName] ?? null;
 		if(is_null($store)) {
 			if($createIfNotExists) {
-				$store = $this->createStore($namespace);
-				return $store;
+				return $this->createStore($namespace);
 			}
 			else {
 				return null;
@@ -117,27 +117,13 @@ class SessionStore implements SessionContainer {
 		return $this->getStore($namespace);
 	}
 
-	public function get(string $key) {
-		$store = $this;
-		$lastDotPosition = strrpos($key, ".");
-
-		if ($lastDotPosition !== false) {
-			$namespace = $this->getNamespaceFromKey($key);
-			$store = $this->getStore($namespace);
-		}
-
-		if (is_null($store)) {
-			return null;
-		}
-
-		if ($lastDotPosition !== false) {
-			$key = substr($key, $lastDotPosition + 1);
-		}
-
-		return $store->getData($key);
+	public function get(string $key):mixed {
+		$store = $this->getStoreFromKey($key);
+		$key = $this->normaliseKey($key);
+		return $store?->getData($key);
 	}
 
-	public function set(string $key, $value):void {
+	public function set(string $key, mixed $value):void {
 		$store = $this;
 		$lastDotPosition = strrpos($key, ".");
 
@@ -159,6 +145,12 @@ class SessionStore implements SessionContainer {
 	}
 
 	public function contains(string $key):bool {
+		$store = $this->getStoreFromKey($key);
+		$key = $this->normaliseKey($key);
+		return $store?->containsData($key) ?? false;
+	}
+
+	private function getStoreFromKey(string $key):?SessionStore {
 		$store = $this;
 		$lastDotPosition = strrpos($key, ".");
 
@@ -168,14 +160,19 @@ class SessionStore implements SessionContainer {
 		}
 
 		if (is_null($store)) {
-			return false;
+			return null;
 		}
 
-		if ($lastDotPosition !== false) {
+		return $store;
+	}
+
+	private function normaliseKey(string $key):string {
+		$lastDotPosition = strrpos($key, ".");
+		if($lastDotPosition !== false) {
 			$key = substr($key, $lastDotPosition + 1);
 		}
 
-		return $store->containsData($key);
+		return $key;
 	}
 
 	public function remove(string $key = null):void {
@@ -213,11 +210,11 @@ class SessionStore implements SessionContainer {
 	}
 
 	protected function getNamespaceFromKey(string $key):?string {
-		$lastDotPostition = strrpos($key, ".");
-		if ($lastDotPostition === false) {
+		$lastDotPosition = strrpos($key, ".");
+		if ($lastDotPosition === false) {
 			return null;
 		}
 
-		return substr($key, 0, $lastDotPostition);
+		return substr($key, 0, $lastDotPosition);
 	}
 }
