@@ -1,7 +1,6 @@
 <?php
 namespace Gt\Session;
 
-use DateTimeInterface;
 use Gt\TypeSafeGetter\NullableTypeSafeGetter;
 use Gt\TypeSafeGetter\TypeSafeGetter;
 use SessionHandlerInterface;
@@ -17,16 +16,14 @@ class Session implements SessionContainer, TypeSafeGetter {
 	const DEFAULT_SESSION_HTTPONLY = true;
 	const DEFAULT_COOKIE_PATH = "/";
 
-	/** @var string */
-	protected $id;
-	/** @var SessionHandlerInterface */
-	protected $sessionHandler;
-	/** @var SessionStore */
-	protected $store;
+	protected string $id;
+	protected SessionHandlerInterface $sessionHandler;
+	protected ?SessionStore $store;
 
+	/** @param array<string, string> $config */
 	public function __construct(
 		SessionHandlerInterface $sessionHandler,
-		iterable $config = [],
+		array $config = [],
 		string $id = null
 	) {
 		$this->sessionHandler = $sessionHandler;
@@ -61,7 +58,7 @@ class Session implements SessionContainer, TypeSafeGetter {
 		while(!$success);
 
 		$this->sessionHandler->open($sessionPath, $sessionName);
-		$this->store = $this->readSessionData() ?: null;
+		$this->store = $this->readSessionData();
 		if(is_null($this->store)) {
 			$this->store = new SessionStore(__NAMESPACE__, $this);
 		}
@@ -71,7 +68,7 @@ class Session implements SessionContainer, TypeSafeGetter {
 		$this->sessionHandler->destroy($this->getId());
 		$params = session_get_cookie_params();
 		setcookie(
-			session_name(),
+			session_name() ?: "",
 			"",
 			-1,
 			$params["path"],
@@ -94,7 +91,8 @@ class Session implements SessionContainer, TypeSafeGetter {
 	public function get(string $key):mixed {
 		return $this->store->get($key);
 	}
-	public function set(string $key, $value):void {
+
+	public function set(string $key, mixed $value):void {
 		$this->store->set($key, $value);
 	}
 
@@ -112,7 +110,7 @@ class Session implements SessionContainer, TypeSafeGetter {
 			session_id($this->createNewId());
 		}
 
-		return session_id();
+		return session_id() ?: "";
 	}
 
 	protected function getAbsolutePath(string $path):string {
@@ -133,11 +131,11 @@ class Session implements SessionContainer, TypeSafeGetter {
 	}
 
 	protected function createNewId():string {
-		return session_create_id();
+		return session_create_id() ?: "";
 	}
 
-	protected function readSessionData() {
-		return unserialize($this->sessionHandler->read($this->id));
+	protected function readSessionData():?SessionStore {
+		return unserialize($this->sessionHandler->read($this->id)) ?: null;
 	}
 
 	public function write():bool {

@@ -1,4 +1,4 @@
-<?php
+<?php /** @noinspection PhpUnused */
 namespace Gt\Session;
 
 use SessionHandler;

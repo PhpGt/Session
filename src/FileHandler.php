@@ -5,8 +5,9 @@ use DirectoryIterator;
 
 class FileHandler extends Handler {
 	const EMPTY_PHP_ARRAY = "a:0:{}";
-	protected $path;
-	protected $cache;
+	protected string $path;
+	/** @var array<string, mixed>> */
+	protected array $cache;
 
 	/**
 	 * @link http://php.net/manual/en/sessionhandlerinterface.open.php
@@ -41,10 +42,7 @@ class FileHandler extends Handler {
 		return true;
 	}
 
-	/**
-	 * @link http://php.net/manual/en/sessionhandlerinterface.read.php
-	 * @param string $session_id
-	 */
+	/** @link http://php.net/manual/en/sessionhandlerinterface.read.php */
 	public function read(string $session_id):string {
 		if(isset($this->cache[$session_id])) {
 			return $this->cache[$session_id];
@@ -56,15 +54,11 @@ class FileHandler extends Handler {
 			return "";
 		}
 
-		$this->cache[$session_id] = file_get_contents($filePath);
+		$this->cache[$session_id] = file_get_contents($filePath) ?: "";
 		return $this->cache[$session_id];
 	}
 
-	/**
-	 * @link http://php.net/manual/en/sessionhandlerinterface.write.php
-	 * @param string $session_id
-	 * @param string $session_data
-	 */
+	/** @link http://php.net/manual/en/sessionhandlerinterface.write.php */
 	public function write(string $session_id, string $session_data):bool {
 		if($session_data === self::EMPTY_PHP_ARRAY) {
 			return true;
@@ -74,11 +68,8 @@ class FileHandler extends Handler {
 		return $bytesWritten !== false;
 	}
 
-	/**
-	 * @link http://php.net/manual/en/sessionhandlerinterface.destroy.php
-	 * @param string $id
-	 */
-	public function destroy($id):bool {
+	/** @link http://php.net/manual/en/sessionhandlerinterface.destroy.php */
+	public function destroy(string $id = ""):bool {
 		$filePath = $this->getFilePath($id);
 
 		if(file_exists($filePath)) {
@@ -88,13 +79,11 @@ class FileHandler extends Handler {
 		return true;
 	}
 
-	/**
-	 * @link http://php.net/manual/en/sessionhandlerinterface.gc.php
-	 * @param int $maxlifetime
-	 */
-	public function gc($maxlifetime):bool {
+	/** @link http://php.net/manual/en/sessionhandlerinterface.gc.php */
+	public function gc(int $maxLifeTime):int|false {
 		$now = time();
-		$expired = $now - $maxlifetime;
+		$expired = $now - $maxLifeTime;
+		$num = 0;
 
 		foreach(new DirectoryIterator($this->path) as $fileInfo) {
 			if(!$fileInfo->isFile()) {
@@ -106,10 +95,11 @@ class FileHandler extends Handler {
 				if(!unlink($fileInfo->getPathname())) {
 					return false;
 				}
+				$num++;
 			}
 		}
 
-		return true;
+		return $num;
 	}
 
 	protected function getFilePath(string $id):string {
