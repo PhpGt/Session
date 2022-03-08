@@ -20,10 +20,10 @@ class Session implements SessionContainer, TypeSafeGetter {
 	protected SessionHandlerInterface $sessionHandler;
 	protected ?SessionStore $store;
 
-	/** @param array<string, string> $config */
+	/** @param \ArrayAccess<string, string>|array<string, string> $config */
 	public function __construct(
 		SessionHandlerInterface $sessionHandler,
-		array $config = [],
+		array|\ArrayAccess $config = [],
 		string $id = null
 	) {
 		$this->sessionHandler = $sessionHandler;
