@@ -8,16 +8,16 @@
     "packages": [
         {
             "name": "phpgt/typesafegetter",
-            "version": "v1.2.3",
+            "version": "v1.2.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/PhpGt/TypeSafeGetter.git",
-                "reference": "23d0093abb1b928917006e52065c14eecaeaaaa4"
+                "reference": "ebffd758e69b8a0eebcad30f3daf408915b9ddf3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/PhpGt/TypeSafeGetter/zipball/23d0093abb1b928917006e52065c14eecaeaaaa4",
-                "reference": "23d0093abb1b928917006e52065c14eecaeaaaa4",
+                "url": "https://api.github.com/repos/PhpGt/TypeSafeGetter/zipball/ebffd758e69b8a0eebcad30f3daf408915b9ddf3",
+                "reference": "ebffd758e69b8a0eebcad30f3daf408915b9ddf3",
                 "shasum": ""
             },
             "require": {
@@ -46,7 +46,7 @@
             "description": "An interface for objects that expose type-safe getter methods.",
             "support": {
                 "issues": "https://github.com/PhpGt/TypeSafeGetter/issues",
-                "source": "https://github.com/PhpGt/TypeSafeGetter/tree/v1.2.3"
+                "source": "https://github.com/PhpGt/TypeSafeGetter/tree/v1.2.4"
             },
             "funding": [
                 {
@@ -54,7 +54,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2022-07-07T09:55:32+00:00"
+            "time": "2022-07-08T17:17:42+00:00"
         }
     ],
     "packages-dev": [
