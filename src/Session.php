@@ -12,7 +12,7 @@ class Session implements SessionContainer, TypeSafeGetter {
 	const DEFAULT_SESSION_LIFETIME = 0;
 	const DEFAULT_SESSION_PATH = "/tmp";
 	const DEFAULT_SESSION_DOMAIN = "";
-	const DEFAULT_SESSION_SECURE = false;
+	const DEFAULT_SESSION_SECURE = true;
 	const DEFAULT_SESSION_HTTPONLY = true;
 	const DEFAULT_COOKIE_PATH = "/";
 
