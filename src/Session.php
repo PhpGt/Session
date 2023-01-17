@@ -19,7 +19,6 @@ class Session implements SessionContainer, TypeSafeGetter {
 	const DEFAULT_STRICT_MODE = true;
 	const DEFAULT_SESSION_ID_LENGTH = 32;
 	const DEFAULT_SESSION_ID_BITS_PER_CHARACTER = 5;
-	const DEFAULT_HASH_FUNCTION = 1;
 
 	protected string $id;
 	protected SessionHandlerInterface $sessionHandler;
@@ -58,7 +57,6 @@ class Session implements SessionContainer, TypeSafeGetter {
 				"use_strict_mode" => $config["use_strict_mode"] ?? self::DEFAULT_STRICT_MODE,
 				"sid_length" => $config["sid_length"] ?? self::DEFAULT_SESSION_ID_LENGTH,
 				"sid_bits_per_character" => $config["sid_bits_per_character"] ?? self::DEFAULT_SESSION_ID_BITS_PER_CHARACTER,
-				"hash_function" => $config["hash_function"] ?? self::DEFAULT_HASH_FUNCTION,
 			]);
 
 			if(!$success) {
