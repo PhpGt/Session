@@ -31,8 +31,8 @@ class Session implements SessionContainer, TypeSafeGetter {
 	) {
 		$this->sessionHandler = $sessionHandler;
 
-		ini_set("session.sid_length", $config["sid_length"] ?? self::DEFAULT_SESSION_ID_LENGTH);
-		ini_set("session.sid_bits_per_character", $config["sid_bits_per_character"] ?? (string)self::DEFAULT_SESSION_ID_BITS_PER_CHARACTER);
+		@ini_set("session.sid_length", $config["sid_length"] ?? self::DEFAULT_SESSION_ID_LENGTH);
+		@ini_set("session.sid_bits_per_character", $config["sid_bits_per_character"] ?? (string)self::DEFAULT_SESSION_ID_BITS_PER_CHARACTER);
 
 		if(is_null($id)) {
 			$id = $this->getId();
