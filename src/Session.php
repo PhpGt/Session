@@ -4,7 +4,6 @@ namespace Gt\Session;
 use Gt\TypeSafeGetter\NullableTypeSafeGetter;
 use Gt\TypeSafeGetter\TypeSafeGetter;
 use SessionHandlerInterface;
-
 class Session implements SessionContainer, TypeSafeGetter {
 	use NullableTypeSafeGetter;
 
@@ -17,7 +16,7 @@ class Session implements SessionContainer, TypeSafeGetter {
 	const DEFAULT_COOKIE_PATH = "/";
 	const DEFAULT_COOKIE_SAMESITE = "Strict";
 	const DEFAULT_STRICT_MODE = true;
-	const DEFAULT_SESSION_ID_LENGTH = 32;
+	const DEFAULT_SESSION_ID_LENGTH = 64;
 	const DEFAULT_SESSION_ID_BITS_PER_CHARACTER = 5;
 
 	protected string $id;
@@ -31,6 +30,9 @@ class Session implements SessionContainer, TypeSafeGetter {
 		string $id = null
 	) {
 		$this->sessionHandler = $sessionHandler;
+
+		ini_set("session.sid_length", $config["sid_length"] ?? self::DEFAULT_SESSION_ID_LENGTH);
+		ini_set("session.sid_bits_per_character", $config["sid_bits_per_character"] ?? (string)self::DEFAULT_SESSION_ID_BITS_PER_CHARACTER);
 
 		if(is_null($id)) {
 			$id = $this->getId();
@@ -55,8 +57,6 @@ class Session implements SessionContainer, TypeSafeGetter {
 				"cookie_httponly" => $config["cookie_httponly"] ?? self::DEFAULT_SESSION_HTTPONLY,
 				"cookie_samesite" => $config["cookie_samesite"] ?? self::DEFAULT_COOKIE_SAMESITE,
 				"use_strict_mode" => $config["use_strict_mode"] ?? self::DEFAULT_STRICT_MODE,
-				"sid_length" => $config["sid_length"] ?? self::DEFAULT_SESSION_ID_LENGTH,
-				"sid_bits_per_character" => $config["sid_bits_per_character"] ?? self::DEFAULT_SESSION_ID_BITS_PER_CHARACTER,
 			]);
 
 			if(!$success) {
