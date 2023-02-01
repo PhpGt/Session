@@ -4,7 +4,6 @@ namespace Gt\Session;
 use Gt\TypeSafeGetter\NullableTypeSafeGetter;
 use Gt\TypeSafeGetter\TypeSafeGetter;
 use SessionHandlerInterface;
-
 class Session implements SessionContainer, TypeSafeGetter {
 	use NullableTypeSafeGetter;
 
@@ -12,21 +11,28 @@ class Session implements SessionContainer, TypeSafeGetter {
 	const DEFAULT_SESSION_LIFETIME = 0;
 	const DEFAULT_SESSION_PATH = "/tmp";
 	const DEFAULT_SESSION_DOMAIN = "";
-	const DEFAULT_SESSION_SECURE = false;
+	const DEFAULT_SESSION_SECURE = true;
 	const DEFAULT_SESSION_HTTPONLY = true;
 	const DEFAULT_COOKIE_PATH = "/";
+	const DEFAULT_COOKIE_SAMESITE = "Strict";
+	const DEFAULT_STRICT_MODE = true;
+	const DEFAULT_SESSION_ID_LENGTH = 64;
+	const DEFAULT_SESSION_ID_BITS_PER_CHARACTER = 5;
 
 	protected string $id;
 	protected SessionHandlerInterface $sessionHandler;
 	protected ?SessionStore $store;
 
-	/** @param array<string, string> $config */
+	/** @param \ArrayAccess<string, string>|array<string, string> $config */
 	public function __construct(
 		SessionHandlerInterface $sessionHandler,
-		array $config = [],
+		array|\ArrayAccess $config = [],
 		string $id = null
 	) {
 		$this->sessionHandler = $sessionHandler;
+
+		@ini_set("session.sid_length", $config["sid_length"] ?? self::DEFAULT_SESSION_ID_LENGTH);
+		@ini_set("session.sid_bits_per_character", $config["sid_bits_per_character"] ?? (string)self::DEFAULT_SESSION_ID_BITS_PER_CHARACTER);
 
 		if(is_null($id)) {
 			$id = $this->getId();
@@ -52,6 +58,8 @@ class Session implements SessionContainer, TypeSafeGetter {
 				"cookie_domain" => $config["cookie_domain"] ?? self::DEFAULT_SESSION_DOMAIN,
 				"cookie_secure" => $config["cookie_secure"] ?? self::DEFAULT_SESSION_SECURE,
 				"cookie_httponly" => $config["cookie_httponly"] ?? self::DEFAULT_SESSION_HTTPONLY,
+				"cookie_samesite" => $config["cookie_samesite"] ?? self::DEFAULT_COOKIE_SAMESITE,
+				"use_strict_mode" => $config["use_strict_mode"] ?? self::DEFAULT_STRICT_MODE,
 			]);
 
 			if(!$success) {
