@@ -67,7 +67,7 @@ class Session implements SessionContainer, TypeSafeGetter {
 			}
 			$startAttempts++;
 		}
-		while(!$success && $startAttempts < 1);
+		while(!$success && $startAttempts <= 1);
 
 		$this->sessionHandler->open($sessionPath, $sessionName);
 		$this->store = $this->readSessionData();
