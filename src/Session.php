@@ -45,6 +45,9 @@ class Session implements SessionContainer, TypeSafeGetter {
 		);
 		$sessionName = $config["name"] ?? self::DEFAULT_SESSION_NAME;
 
+		// Allow a single failure to start session. If it fails to start,
+		// destroy the existing session.
+		$startAttempts = 0;
 		do {
 			$success = session_start([
 				"save_path" => $sessionPath,
@@ -60,10 +63,11 @@ class Session implements SessionContainer, TypeSafeGetter {
 			]);
 
 			if(!$success) {
-				session_destroy();
+				@session_destroy();
 			}
+			$startAttempts++;
 		}
-		while(!$success);
+		while(!$success && $startAttempts <= 1);
 
 		$this->sessionHandler->open($sessionPath, $sessionName);
 		$this->store = $this->readSessionData();
