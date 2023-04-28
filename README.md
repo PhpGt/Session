@@ -9,10 +9,10 @@ Sessions are addressed using dot notation, allowing for handling categories of s
 <a href="https://github.com/PhpGt/Session/actions" target="_blank">
 	<img src="https://badge.status.php.gt/session-build.svg" alt="Build status" />
 </a>
-<a href="https://scrutinizer-ci.com/g/PhpGt/Session" target="_blank">
+<a href="https://app.codacy.com/gh/PhpGt/Session" target="_blank">
 	<img src="https://badge.status.php.gt/session-quality.svg" alt="Code quality" />
 </a>
-<a href="https://scrutinizer-ci.com/g/PhpGt/Session" target="_blank">
+<a href="https://app.codecov.io/gh/PhpGt/Session" target="_blank">
 	<img src="https://badge.status.php.gt/session-coverage.svg" alt="Code coverage" />
 </a>
 <a href="https://packagist.org/packages/PhpGt/Session" target="_blank">
