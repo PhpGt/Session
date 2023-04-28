@@ -1,6 +1,9 @@
 <?php
 namespace Gt\Session\Test\Helper\DataProvider;
 
+use Gt\Session\Handler;
+use Gt\Session\Test\SessionStoreTest;
+
 trait KeyValuePairProvider {
 	public static function data_randomKeyValuePairs():array {
 		$data = [];
@@ -18,6 +21,7 @@ trait KeyValuePairProvider {
 			}
 
 			$row []= $config;
+			$row []= self::createStaticMock(Handler::class);
 			$data []= $row;
 		}
 
