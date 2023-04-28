@@ -2,7 +2,10 @@
 namespace Gt\Session;
 
 class SessionStoreFactory {
-	public static function create(string $namespace, Session $session):SessionStore {
+	public static function create(
+		string $namespace,
+		Session $session,
+	):SessionStore {
 		$namespaceParts = explode(".", $namespace);
 		$store = new SessionStore(
 			array_shift($namespaceParts),
