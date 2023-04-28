@@ -15,11 +15,11 @@ abstract class Handler implements SessionHandlerInterface {
 	abstract public function gc(int $maxLifeTime):int|false;
 
 	/** @link http://php.net/manual/en/sessionhandlerinterface.open.php */
-	abstract public function open(string $save_path, string $name):bool;
+	abstract public function open(string $savePath, string $name):bool;
 
 	/** @link http://php.net/manual/en/sessionhandlerinterface.read.php */
-	abstract public function read(string $session_id):string;
+	abstract public function read(string $sessionId):string;
 
 	/** @link http://php.net/manual/en/sessionhandlerinterface.write.php */
-	abstract public function write(string $session_id, string $session_data):bool;
+	abstract public function write(string $sessionId, string $sessionData):bool;
 }

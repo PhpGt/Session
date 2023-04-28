@@ -1,6 +1,8 @@
 <?php
 namespace Gt\Session\Test\Helper\DataProvider;
 
+use Gt\Session\Handler;
+
 trait ConfigProvider {
 	public function data_randomConfig():array {
 		$data = [];
@@ -18,6 +20,7 @@ trait ConfigProvider {
 			}
 
 			$row []= $configItem;
+			$row []= self::createStaticMock(Handler::class);
 			$data []= $row;
 		}
 
