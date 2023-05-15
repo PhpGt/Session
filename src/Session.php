@@ -29,7 +29,8 @@ class Session implements SessionContainer, TypeSafeGetter {
 	public function __construct(
 		SessionHandlerInterface $sessionHandler,
 		array|ArrayAccess $config = [],
-		string $id = null
+		string $id = null,
+		string $suffix = null,
 	) {
 		$this->sessionHandler = $sessionHandler;
 
@@ -39,7 +40,12 @@ class Session implements SessionContainer, TypeSafeGetter {
 			$id = $this->getId();
 		}
 
+		if($suffix) {
+			$id = "$id:$suffix";
+		}
+
 		$this->id = $id;
+		session_id($this->id);
 
 		$sessionPath = $this->getAbsolutePath(
 			$config["save_path"] ?? self::DEFAULT_SESSION_PATH
@@ -97,10 +103,11 @@ class Session implements SessionContainer, TypeSafeGetter {
 	public function getId():string {
 		$id = session_id();
 		if(empty($id)) {
-			session_id($this->createNewId());
+			$id = $this->createNewId();
+			session_id($id);
 		}
 
-		return session_id() ?: "";
+		return $id ?: "";
 	}
 
 	protected function getAbsolutePath(string $path):string {

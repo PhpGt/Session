@@ -99,6 +99,19 @@ class SessionTest extends TestCase {
 		self::assertEquals($dateTime, $sut->getDateTime("test.value"));
 	}
 
+	public function testSuffix():void {
+		$id = "session123";
+		$suffix = "1234";
+
+		$handler = self::createMock(Handler::class);
+		$session = new Session(
+			$handler,
+			id: $id,
+			suffix: $suffix
+		);
+		self::assertSame("$id:$suffix", $session->getId());
+	}
+
 	/** @dataProvider data_randomConfig */
 	private static function testSessionStartsWithConfig(array $config, Handler $handler):void {
 		new Session($handler, $config);
