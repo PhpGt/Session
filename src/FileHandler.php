@@ -35,9 +35,7 @@ class FileHandler extends Handler {
 		return $success;
 	}
 
-	/**
-	 * @link http://php.net/manual/en/sessionhandlerinterface.close.php
-	 */
+	/** @link http://php.net/manual/en/sessionhandlerinterface.close.php */
 	public function close():bool {
 		return true;
 	}
