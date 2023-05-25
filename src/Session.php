@@ -16,7 +16,7 @@ class Session implements SessionContainer, TypeSafeGetter {
 	const DEFAULT_SESSION_SECURE = true;
 	const DEFAULT_SESSION_HTTPONLY = true;
 	const DEFAULT_COOKIE_PATH = "/";
-	const DEFAULT_COOKIE_SAMESITE = "Strict";
+	const DEFAULT_COOKIE_SAMESITE = "Lax";
 	const DEFAULT_STRICT_MODE = true;
 	const DEFAULT_SESSION_ID_LENGTH = 64;
 	const DEFAULT_SESSION_ID_BITS_PER_CHARACTER = 5;
@@ -29,7 +29,7 @@ class Session implements SessionContainer, TypeSafeGetter {
 	public function __construct(
 		SessionHandlerInterface $sessionHandler,
 		array|ArrayAccess $config = [],
-		string $id = null
+		string $id = null,
 	) {
 		$this->sessionHandler = $sessionHandler;
 
@@ -137,14 +137,12 @@ class Session implements SessionContainer, TypeSafeGetter {
 
 	/** @param ArrayAccess<string, string>|array<string, string> $config */
 	private function setIniDefaults(ArrayAccess|array $config):void {
-		// phpcs:ignore
-		@ini_set(
+		ini_set(
 			"session.sid_length",
 			$config["sid_length"]
 			?? self::DEFAULT_SESSION_ID_LENGTH
 		);
-		// phpcs:ignore
-		@ini_set(
+		ini_set(
 			"session.sid_bits_per_character",
 			$config["sid_bits_per_character"]
 			?? (string)self::DEFAULT_SESSION_ID_BITS_PER_CHARACTER
