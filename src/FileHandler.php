@@ -11,20 +11,20 @@ class FileHandler extends Handler {
 
 	/**
 	 * @link http://php.net/manual/en/sessionhandlerinterface.open.php
-	 * @param string $save_path The path where to store/retrieve the session.
+	 * @param string $savePath The path where to store/retrieve the session.
 	 * @param string $name The session name.
 	 */
-	public function open(string $save_path, string $name):bool {
+	public function open(string $savePath, string $name):bool {
 		$success = true;
 
-		$save_path = str_replace(
+		$savePath = str_replace(
 			["/", "\\"],
 			DIRECTORY_SEPARATOR,
-			$save_path
+			$savePath
 		);
 
 		$this->path = implode(DIRECTORY_SEPARATOR, [
-			$save_path,
+			$savePath,
 			$name,
 		]);
 
@@ -35,36 +35,34 @@ class FileHandler extends Handler {
 		return $success;
 	}
 
-	/**
-	 * @link http://php.net/manual/en/sessionhandlerinterface.close.php
-	 */
+	/** @link http://php.net/manual/en/sessionhandlerinterface.close.php */
 	public function close():bool {
 		return true;
 	}
 
 	/** @link http://php.net/manual/en/sessionhandlerinterface.read.php */
-	public function read(string $session_id):string {
-		if(isset($this->cache[$session_id])) {
-			return $this->cache[$session_id];
+	public function read(string $sessionId):string {
+		if(isset($this->cache[$sessionId])) {
+			return $this->cache[$sessionId];
 		}
 
-		$filePath = $this->getFilePath($session_id);
+		$filePath = $this->getFilePath($sessionId);
 
 		if(!file_exists($filePath)) {
 			return "";
 		}
 
-		$this->cache[$session_id] = file_get_contents($filePath) ?: "";
-		return $this->cache[$session_id];
+		$this->cache[$sessionId] = file_get_contents($filePath) ?: "";
+		return $this->cache[$sessionId];
 	}
 
 	/** @link http://php.net/manual/en/sessionhandlerinterface.write.php */
-	public function write(string $session_id, string $session_data):bool {
-		if($session_data === self::EMPTY_PHP_ARRAY) {
+	public function write(string $sessionId, string $sessionData):bool {
+		if($sessionData === self::EMPTY_PHP_ARRAY) {
 			return true;
 		}
-		$filePath = $this->getFilePath($session_id);
-		$bytesWritten = file_put_contents($filePath, $session_data);
+		$filePath = $this->getFilePath($sessionId);
+		$bytesWritten = file_put_contents($filePath, $sessionData);
 		return $bytesWritten !== false;
 	}
 

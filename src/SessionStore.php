@@ -76,9 +76,7 @@ class SessionStore implements SessionContainer, TypeSafeGetter {
 			if($createIfNotExists) {
 				return $this->createStore($namespace);
 			}
-			else {
-				return null;
-			}
+			return null;
 		}
 
 		if(empty($namespaceParts)) {
@@ -177,7 +175,7 @@ class SessionStore implements SessionContainer, TypeSafeGetter {
 
 	public function remove(string $key = null):void {
 		if(is_null($key)) {
-			foreach($this->stores as $i => $childStore) {
+			foreach(array_keys($this->stores) as $i) {
 				unset($this->stores[$i]);
 			}
 

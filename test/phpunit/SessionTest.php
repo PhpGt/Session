@@ -22,12 +22,14 @@ class SessionTest extends TestCase {
 		FunctionMocker::mock("session_destroy");
 	}
 
-	public function testSessionStarts():void {
-		/** @var Handler|MockObject $handler */
-		$handler = $this->getMockBuilder(Handler::class)
-			->getMock();
+	protected static function createStaticMock(string $className):MockObject {
+		$tc = new SessionStoreTest("");
+		return $tc->createMock($className);
+	}
 
+	public function testSessionStarts():void {
 		self::assertEmpty(FunctionMocker::$mockCalls["session_start"]);
+		$handler = self::createMock(Handler::class);
 		new Session($handler);
 		self::assertCount(
 			1,
@@ -35,15 +37,71 @@ class SessionTest extends TestCase {
 		);
 	}
 
-	/**
-	 * @dataProvider data_randomConfig
-	 */
-	public function testSessionStartsWithConfig(array $config):void {
-		/** @var Handler|MockObject $handler */
-		$handler = $this->getMockBuilder(Handler::class)
-			->getMock();
+	public function testWriteSessionDataCalled() {
+		$handler = self::createMock(Handler::class);
+		$handler->expects($this->exactly(2))
+			->method("write");
+		$session = new Session($handler);
 
-		new Session($handler ,$config);
+		$session->set("test-key", "test-value");
+		$session->remove("test-key");
+	}
+
+	public function testGetString():void {
+		$handler = self::createMock(Handler::class);
+		$sut = new Session($handler);
+
+		$numericValue = rand(1000, 9999);
+		$sut->set("test.value", $numericValue);
+
+		self::assertSame((string)$numericValue, $sut->getString("test.value"));
+	}
+
+	public function testGetInt():void {
+		$handler = self::createMock(Handler::class);
+		$sut = new Session($handler);
+
+		$numericStringValue = (string)rand(1000, 9999);
+		$sut->set("test.value", $numericStringValue);
+
+		self::assertSame((int)$numericStringValue, $sut->getInt("test.value"));
+	}
+
+	public function testGetFloat():void {
+		$handler = self::createMock(Handler::class);
+		$sut = new Session($handler);
+
+		$numericStringValue = (string)(rand(1000, 9999) - 0.105);
+		$sut->set("test.value", $numericStringValue);
+
+		self::assertSame((float)$numericStringValue, $sut->getFloat("test.value"));
+	}
+
+	public function testGetBool():void {
+		$handler = self::createMock(Handler::class);
+		$sut = new Session($handler);
+
+		$numericValue = rand(0, 1);
+		$sut->set("test.value", $numericValue);
+
+		self::assertSame((bool)$numericValue, $sut->getBool("test.value"));
+	}
+
+	public function testGetDateTime():void {
+		$handler = self::createMock(Handler::class);
+		$sut = new Session($handler);
+
+		$numericValue = time();
+		$sut->set("test.value", $numericValue);
+
+		$dateTime = new DateTime();
+		$dateTime->setTimestamp($numericValue);
+		self::assertEquals($dateTime, $sut->getDateTime("test.value"));
+	}
+
+	/** @dataProvider data_randomConfig */
+	private static function testSessionStartsWithConfig(array $config, Handler $handler):void {
+		new Session($handler, $config);
 		$sessionStartParameter = FunctionMocker::$mockCalls["session_start"][0][0];
 
 		foreach($config as $key => $value) {
@@ -56,46 +114,20 @@ class SessionTest extends TestCase {
 	}
 
 	/** @dataProvider data_randomConfig */
-	public function testSessionStartDestroysFailedSession(array $config):void {
-		/** @var Handler|MockObject $handler */
-		$handler = $this->getMockBuilder(Handler::class)
-			->getMock();
-
+	private static function testSessionStartDestroysFailedSession(array $config, Handler $handler):void {
 		FunctionMocker::$callState["session_start__fail"] = true;
 		new Session($handler, $config);
 		self::assertCount(1, FunctionMocker::$mockCalls["session_destroy"]);
 	}
 
-	public function testWriteSessionDataCalled() {
-		/** @var Handler|MockObject $handler */
-		$handler = $this->getMockBuilder(Handler::class)
-			->getMock();
-		$handler->expects($this->exactly(2))
-			->method("write");
-		$session = new Session($handler);
-
-		$session->set("test-key", "test-value");
-		$session->remove("test-key");
-	}
-
-	/**
-	 * @dataProvider data_randomString
-	 */
-	public function testGetReturnsNull(string $randomString):void {
-		/** @var Handler|MockObject $handler */
-		$handler = $this->getMockBuilder(Handler::class)
-			->getMock();
+	/** @dataProvider data_randomString */
+	private static function testGetReturnsNull(string $randomString, Handler $handler):void {
 		$session = new Session($handler);
 		self::assertNull($session->get($randomString));
 	}
 
-	/**
-	 * @@dataProvider data_randomKeyValuePairs
-	 */
-	public function testSetGet(array $keyValuePairs):void {
-		/** @var Handler|MockObject $handler */
-		$handler = $this->getMockBuilder(Handler::class)
-			->getMock();
+	/** @dataProvider data_randomKeyValuePairs */
+	private static function testSetGet(array $keyValuePairs, Handler $handler):void {
 		$session = new Session($handler);
 
 		foreach($keyValuePairs as $key => $value) {
@@ -107,13 +139,8 @@ class SessionTest extends TestCase {
 		}
 	}
 
-	/**
-	 * @dataProvider data_randomKeyValuePairs
-	 */
-	public function testSetGetNamespaced(array $keyValuePairs):void {
-		/** @var Handler|MockObject $handler */
-		$handler = $this->getMockBuilder(Handler::class)
-			->getMock();
+	/** @dataProvider data_randomKeyValuePairs */
+	private static function testSetGetNamespaced(array $keyValuePairs, Handler $handler):void {
 		$session = new Session($handler);
 
 		foreach($keyValuePairs as $key => $value) {
@@ -135,45 +162,35 @@ class SessionTest extends TestCase {
 		}
 	}
 
-    /**
-     * @dataProvider data_randomKeyValuePairs
-     */
-    public function testSetGetNamespacedSameParentNamespace(array $keyValuePairs):void {
-	/** @var Handler|MockObject $handler */
-	$handler = $this->getMockBuilder(Handler::class)
-	    ->getMock();
-	$session = new Session($handler);
+	/** @dataProvider data_randomKeyValuePairs */
+	private static function testSetGetNamespacedSameParentNamespace(array $keyValuePairs, Handler $handler):void {
+		$session = new Session($handler);
 
-	$parentNamespace = implode(".", [
-	    uniqid("namespace1-"),
-	    uniqid("namespace2-"),
-	]);
+		$parentNamespace = implode(".", [
+			uniqid("namespace1-"),
+			uniqid("namespace2-"),
+		]);
 
-        foreach($keyValuePairs as $key => $value) {
-            $newKey = implode(".", [
-                $parentNamespace,
-                $key,
-            ]);
-            $keyValuePairs[$newKey] = $value;
-            unset($keyValuePairs[$key]);
-        }
+		foreach($keyValuePairs as $key => $value) {
+			$newKey = implode(".", [
+				$parentNamespace,
+				$key,
+			]);
+			$keyValuePairs[$newKey] = $value;
+			unset($keyValuePairs[$key]);
+		}
 
-        foreach($keyValuePairs as $key => $value) {
-            $session->set($key, $value);
-        }
+		foreach($keyValuePairs as $key => $value) {
+			$session->set($key, $value);
+		}
 
-        foreach($keyValuePairs as $key => $value) {
-            self::assertEquals($value, $session->get($key));
-        }
-    }
+		foreach($keyValuePairs as $key => $value) {
+			self::assertEquals($value, $session->get($key));
+		}
+	}
 
-	/**
-	 * @@dataProvider data_randomKeyValuePairs
-	 */
-	public function testSetGetNotExistsOtherKey(array $keyValuePairs):void {
-		/** @var Handler|MockObject $handler */
-		$handler = $this->getMockBuilder(Handler::class)
-			->getMock();
+	/** @dataProvider data_randomKeyValuePairs */
+	private static function testSetGetNotExistsOtherKey(array $keyValuePairs, Handler $handler):void {
 		$session = new Session($handler);
 
 		foreach($keyValuePairs as $key => $value) {
@@ -198,13 +215,8 @@ class SessionTest extends TestCase {
 		}
 	}
 
-	/**
-	 * @dataProvider data_randomKeyValuePairs
-	 */
-	public function testContains(array $keyValuePairs):void {
-		/** @var Handler|MockObject $handler */
-		$handler = $this->getMockBuilder(Handler::class)
-			->getMock();
+	/** @dataProvider data_randomKeyValuePairs */
+	private static function testContains(array $keyValuePairs, Handler $handler):void {
 		$session = new Session($handler);
 
 		foreach($keyValuePairs as $key => $value) {
@@ -216,13 +228,8 @@ class SessionTest extends TestCase {
 		}
 	}
 
-	/**
-	 * @dataProvider data_randomKeyValuePairs
-	 */
-	public function testNotContains(array $keyValuePairs):void {
-		/** @var Handler|MockObject $handler */
-		$handler = $this->getMockBuilder(Handler::class)
-			->getMock();
+	/** @dataProvider data_randomKeyValuePairs */
+	private static function testNotContains(array $keyValuePairs, Handler $handler):void {
 		$session = new Session($handler);
 
 		foreach($keyValuePairs as $key => $value) {
@@ -234,20 +241,15 @@ class SessionTest extends TestCase {
 		}
 	}
 
-	/**
-	 * @dataProvider data_randomKeyValuePairs
-	 */
-    public function testRemove(array $keyValuePairs):void {
-	    /** @var Handler|MockObject $handler */
-		$handler = $this->getMockBuilder(Handler::class)
-			->getMock();
+	/** @dataProvider data_randomKeyValuePairs */
+	private static function testRemove(array $keyValuePairs, Handler $handler):void {
 		$session = new Session($handler);
 
 		foreach($keyValuePairs as $key => $value) {
 			$session->set($key, $value);
 		}
 
-		uasort($keyValuePairs, function () {
+		uasort($keyValuePairs, function() {
 			return rand(-1, 1);
 		});
 
@@ -258,57 +260,47 @@ class SessionTest extends TestCase {
 		}
 	}
 
-	/**
-	 * @dataProvider data_randomKeyValuePairs
-	 */
-	public function testNamespaceKeyIsRemovedFromSession(array $keyValuePairs):void {
-		/** @var Handler|MockObject $handler */
-    		$handler = $this->getMockBuilder(Handler::class)
-			->getMock();
-    		$session = new Session($handler);
+	/** @dataProvider data_randomKeyValuePairs */
+	private static function testNamespaceKeyIsRemovedFromSession(array $keyValuePairs, Handler $handler):void {
+		$session = new Session($handler);
 
-    		$parentNamespace = implode(".", [
-    			uniqid("namespace1-"),
-    			uniqid("namespace2-"),
+		$parentNamespace = implode(".", [
+			uniqid("namespace1-"),
+			uniqid("namespace2-"),
 		]);
 
-    		foreach($keyValuePairs as $key => $value) {
-    			$fullKey = implode(".", [
-    				$parentNamespace,
+		foreach($keyValuePairs as $key => $value) {
+			$fullKey = implode(".", [
+				$parentNamespace,
 				$key,
 			]);
 
-    			$session->set($fullKey, $value);
+			$session->set($fullKey, $value);
 		}
 
 		$keyToRemove = array_rand($keyValuePairs);
-    		$fullKeyToRemove = implode(".", [
-    			$parentNamespace,
+		$fullKeyToRemove = implode(".", [
+			$parentNamespace,
 			$keyToRemove,
 		]);
-    		$store = $session->getStore($parentNamespace);
-    		$store->remove($keyToRemove);
-    		unset($keyValuePairs[$keyToRemove]);
+		$store = $session->getStore($parentNamespace);
+		$store->remove($keyToRemove);
+		unset($keyValuePairs[$keyToRemove]);
 
-    		foreach($keyValuePairs as $key => $value) {
-    			$fullKey = implode(".", [
-    				$parentNamespace,
+		foreach($keyValuePairs as $key => $value) {
+			$fullKey = implode(".", [
+				$parentNamespace,
 				$key,
 			]);
 
-    			self::assertTrue($session->contains($fullKey));
+			self::assertTrue($session->contains($fullKey));
 		}
 
 		self::assertFalse($session->contains($fullKeyToRemove));
 	}
 
-	/**
-	 * @dataProvider data_randomKeyValuePairs
-	 */
-	public function testNamespaceKeyIsRemovedFromStore(array $keyValuePairs): void {
-		/** @var Handler|MockObject $handler */
-		$handler = $this->getMockBuilder(Handler::class)
-			->getMock();
+	/** @dataProvider data_randomKeyValuePairs */
+	private static function testNamespaceKeyIsRemovedFromStore(array $keyValuePairs, Handler $handler): void {
 		$session = new Session($handler);
 
 		$parentNamespace = implode(".", [
@@ -337,13 +329,8 @@ class SessionTest extends TestCase {
 		self::assertFalse($store->contains($keyToRemove));
 	}
 
-	/**
-	 * @dataProvider data_randomKeyValuePairs
-	 */
-	public function testRemoveNamespace(array $keyValuePairs) {
-		/** @var Handler|MockObject $handler */
-		$handler = $this->getMockBuilder(Handler::class)
-			->getMock();
+	/** @dataProvider data_randomKeyValuePairs */
+	private static function testRemoveNamespace(array $keyValuePairs, Handler $handler) {
 		$session = new Session($handler);
 
 		$namespace1 = uniqid("namespace1-");
@@ -380,13 +367,8 @@ class SessionTest extends TestCase {
 		self::assertFalse($session->contains($parentNamespace));
 	}
 
-	/**
-	 * @dataProvider data_randomKeyValuePairs
-	 */
-	public function testRemoveSiblingNamespace(array $keyValuePairs) {
-		/** @var Handler|MockObject $handler */
-		$handler = $this->getMockBuilder(Handler::class)
-			->getMock();
+	/** @dataProvider data_randomKeyValuePairs */
+	private static function testRemoveSiblingNamespace(array $keyValuePairs, Handler $handler) {
 		$session = new Session($handler);
 
 		$namespace0 = uniqid("namespace0-");
@@ -464,67 +446,5 @@ class SessionTest extends TestCase {
 				$session->get($fullKeyA)
 			);
 		}
-	}
-
-	public function testGetString():void {
-		/** @var Handler|MockObject $handler */
-		$handler = $this->getMockBuilder(Handler::class)
-			->getMock();
-		$sut = new Session($handler);
-
-		$numericValue = rand(1000, 9999);
-		$sut->set("test.value", $numericValue);
-
-		self::assertSame((string)$numericValue, $sut->getString("test.value"));
-	}
-
-	public function testGetInt():void {
-		/** @var Handler|MockObject $handler */
-		$handler = $this->getMockBuilder(Handler::class)
-			->getMock();
-		$sut = new Session($handler);
-
-		$numericStringValue = (string)rand(1000, 9999);
-		$sut->set("test.value", $numericStringValue);
-
-		self::assertSame((int)$numericStringValue, $sut->getInt("test.value"));
-	}
-
-	public function testGetFloat():void {
-		/** @var Handler|MockObject $handler */
-		$handler = $this->getMockBuilder(Handler::class)
-			->getMock();
-		$sut = new Session($handler);
-
-		$numericStringValue = (string)(rand(1000, 9999) - 0.105);
-		$sut->set("test.value", $numericStringValue);
-
-		self::assertSame((float)$numericStringValue, $sut->getFloat("test.value"));
-	}
-
-	public function testGetBool():void {
-		/** @var Handler|MockObject $handler */
-		$handler = $this->getMockBuilder(Handler::class)
-			->getMock();
-		$sut = new Session($handler);
-
-		$numericValue = rand(0, 1);
-		$sut->set("test.value", $numericValue);
-
-		self::assertSame((bool)$numericValue, $sut->getBool("test.value"));
-	}
-
-	public function testGetDateTime():void {
-		/** @var Handler|MockObject $handler */
-		$handler = $this->getMockBuilder(Handler::class)
-			->getMock();
-		$sut = new Session($handler);
-
-		$numericValue = time();
-		$sut->set("test.value", $numericValue);
-
-		$dateTime = new DateTime();
-		$dateTime->setTimestamp($numericValue);
-		self::assertEquals($dateTime, $sut->getDateTime("test.value"));
 	}
 }

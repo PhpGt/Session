@@ -19,13 +19,13 @@ class SessionStoreTest extends TestCase {
 		FunctionMocker::mock("session_id");
 	}
 
-	/**
-	 * @dataProvider data_randomKeyValuePairs
-	 */
-	public function testGetSetDotNotation(array $keyValuePairs):void {
-		/** @var MockObject|SessionHandler $handler */
-		$handler = $this->getMockBuilder(Handler::class)
-			->getMock();
+	protected static function createStaticMock(string $className):MockObject {
+		$tc = new SessionStoreTest("");
+		return $tc->createMock($className);
+	}
+
+	/** @dataProvider data_randomKeyValuePairs */
+	public static function testGetSetDotNotation(array $keyValuePairs, Handler $handler):void {
 		$session = new Session($handler);
 
 		$sessionNamespace = "gt.test.session";
